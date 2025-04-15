@@ -37,36 +37,45 @@ const Sidebar = () => {
       )}
     >
       <div className="flex items-center h-16 px-4 border-b border-border">
-        {expanded ? (
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+        <Link to="/" className="flex items-center">
+          {expanded ? (
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                <span className="text-primary-foreground font-semibold">DL</span>
+              </div>
+              <span className="font-semibold text-lg">DentalFlow</span>
+            </div>
+          ) : (
+            <div className="w-10 h-10 mx-auto rounded-full bg-primary flex items-center justify-center">
               <span className="text-primary-foreground font-semibold">DL</span>
             </div>
-            <span className="font-semibold text-lg">DentalFlow</span>
-          </div>
-        ) : (
-          <div className="w-10 h-10 mx-auto rounded-full bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-semibold">DL</span>
-          </div>
-        )}
+          )}
+        </Link>
       </div>
       
       <div className="flex-1 py-6 px-4 flex flex-col">
         <nav className="space-y-1 flex-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={cn(
-                "nav-link",
-                location.pathname === item.href && "active",
-                !expanded && "justify-center px-2"
-              )}
-            >
-              <item.icon className="h-5 w-5" />
-              {expanded && <span>{item.name}</span>}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.href || 
+              (item.href !== '/' && location.pathname.startsWith(item.href));
+            
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                  isActive 
+                    ? "bg-primary/10 text-primary" 
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  !expanded && "justify-center px-2"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {expanded && <span>{item.name}</span>}
+              </Link>
+            );
+          })}
         </nav>
       </div>
       

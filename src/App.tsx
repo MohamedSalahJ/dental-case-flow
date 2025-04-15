@@ -10,6 +10,8 @@ import CaseDetail from "./pages/CaseDetail";
 import NewCase from "./pages/NewCase";
 import Calendar from "./pages/Calendar";
 import Messages from "./pages/Messages";
+import Reports from "./pages/Reports";
+import Inventory from "./pages/Inventory";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +29,8 @@ const App = () => (
           <Route path="/new-case" element={<NewCase />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/inventory" element={<Inventory />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
