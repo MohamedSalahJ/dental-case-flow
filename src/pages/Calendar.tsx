@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { DayContentProps } from "react-day-picker";
 
 const Calendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -87,32 +88,30 @@ const Calendar = () => {
                   deadline: "deadline-day",
                 }}
                 components={{
-                  DayContent: ({ date, view }) => {
-                    if (view !== "month") return date.getDate();
-                    
+                  DayContent: ({ date: dayDate }: DayContentProps) => {
                     const matchingEvents = calendarEvents.filter(
                       (event) => 
-                        event.date.getDate() === date.getDate() &&
-                        event.date.getMonth() === date.getMonth() &&
-                        event.date.getFullYear() === date.getFullYear()
+                        event.date.getDate() === dayDate.getDate() &&
+                        event.date.getMonth() === dayDate.getMonth() &&
+                        event.date.getFullYear() === dayDate.getFullYear()
                     );
-                    
-                    if (matchingEvents.length === 0) return date.getDate();
                     
                     return (
                       <div className="relative w-full h-full flex items-center justify-center">
-                        {date.getDate()}
-                        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex gap-1">
-                          {matchingEvents.map((event, i) => (
-                            <div 
-                              key={i}
-                              className={cn(
-                                "w-1.5 h-1.5 rounded-full",
-                                event.type === "delivery" ? "bg-primary" : "bg-accent"
-                              )}
-                            />
-                          ))}
-                        </div>
+                        {dayDate.getDate()}
+                        {matchingEvents.length > 0 && (
+                          <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex gap-1">
+                            {matchingEvents.map((event, i) => (
+                              <div 
+                                key={i}
+                                className={cn(
+                                  "w-1.5 h-1.5 rounded-full",
+                                  event.type === "delivery" ? "bg-primary" : "bg-accent"
+                                )}
+                              />
+                            ))}
+                          </div>
+                        )}
                       </div>
                     );
                   },
