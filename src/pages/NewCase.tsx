@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import PrescriptionForm from "../components/prescriptions/PrescriptionForm";
+import DentalChart from "../components/prescriptions/DentalChart";
 
 const NewCase = () => {
   const [activeTab, setActiveTab] = useState("details");
@@ -47,9 +48,10 @@ const NewCase = () => {
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="details">Patient Details</TabsTrigger>
                 <TabsTrigger value="prescription">Prescription</TabsTrigger>
+                <TabsTrigger value="dental-chart">Dental Chart</TabsTrigger>
                 <TabsTrigger value="files">Attachments</TabsTrigger>
               </TabsList>
               
@@ -71,6 +73,16 @@ const NewCase = () => {
                 ) : (
                   <div className="text-center py-12 text-muted-foreground">
                     Please complete patient details first
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="dental-chart" className="space-y-4 pt-4">
+                {activeTab === "dental-chart" ? (
+                  <DentalChart />
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    Please complete prescription details first
                   </div>
                 )}
               </TabsContent>
