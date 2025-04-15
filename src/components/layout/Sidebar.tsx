@@ -12,15 +12,17 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  HelpCircle
+  HelpCircle,
+  Receipt
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Cases", href: "/cases", icon: FileText },
   { name: "Calendar", href: "/calendar", icon: Calendar },
   { name: "Messages", href: "/messages", icon: MessageSquare },
+  { name: "Invoices", href: "/invoices", icon: Receipt },
   { name: "Reports", href: "/reports", icon: BarChart3 },
   { name: "Inventory", href: "/inventory", icon: Package },
   { name: "Help", href: "/help", icon: HelpCircle },

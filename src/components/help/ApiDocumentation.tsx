@@ -1,802 +1,605 @@
 
+import { useState } from "react";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InfoIcon } from "lucide-react";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Badge } from "@/components/ui/badge";
 
 const ApiDocumentation = () => {
+  const [activeTab, setActiveTab] = useState("overview");
+
   return (
     <div className="space-y-6">
-      <Alert>
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
-          This documentation is for backend developers who need to integrate with the DentalFlow API.
-        </AlertDescription>
-      </Alert>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Entity Relationship Diagram</CardTitle>
-          <CardDescription>
-            Visual representation of the DentalFlow database structure and relationships
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="border rounded-lg p-4 bg-muted/30">
-            <AspectRatio ratio={16/9}>
-              <div className="w-full h-full bg-white p-4 overflow-auto">
-                <pre className="text-xs font-mono">
-{`
-+----------------+       +----------------+       +----------------+
-|     USERS      |       |     CASES      |       |  CASE_STATUS   |
-+----------------+       +----------------+       +----------------+
-| id (PK)        |       | id (PK)        |       | id (PK)        |
-| name           |       | patient_name   |       | case_id (FK)   |
-| email          |<----->| dentist_id (FK)|       | status         |
-| password_hash  |       | technician_id  |<----->| changed_by (FK)|
-| role           |       | type           |       | timestamp      |
-| clinic         |       | tooth          |       | notes          |
-| created_at     |       | material       |       +----------------+
-| updated_at     |       | shade          |
-+----------------+       | status         |       +----------------+
-        ^                | priority       |       |   MESSAGES     |
-        |                | notes          |       +----------------+
-        |                | due_date       |       | id (PK)        |
-        |                | created_at     |       | case_id (FK)   |
-        |                | updated_at     |<----->| sender_id (FK) |
-        |                +----------------+       | content        |
-        |                        ^                | timestamp      |
-        |                        |                | attachments    |
-+----------------+               |                +----------------+
-|   INVENTORY    |               |
-+----------------+       +----------------+       +----------------+
-| id (PK)        |       | CASE_ATTACHMENTS|      |    SUPPLIERS   |
-| name           |       +----------------+       +----------------+
-| category_id    |       | id (PK)        |       | id (PK)        |
-| supplier_id    |<----->| case_id (FK)   |       | name           |
-| quantity       |       | name           |       | contact_name   |
-| min_quantity   |       | file_type      |       | email          |
-| price          |       | url            |       | phone          |
-| location       |       | uploaded_by    |       | address        |
-| created_at     |       | created_at     |       | created_at     |
-| updated_at     |       +----------------+       | updated_at     |
-+----------------+                                +----------------+
-        ^
-        |
-+----------------+
-|   CATEGORIES   |
-+----------------+
-| id (PK)        |
-| name           |
-| description    |
-| created_at     |
-| updated_at     |
-+----------------+
-`}
-                </pre>
-              </div>
-            </AspectRatio>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Backend API Documentation</CardTitle>
-          <CardDescription>
-            Complete reference for the DentalFlow REST API endpoints
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="authentication" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="authentication">Authentication</TabsTrigger>
-              <TabsTrigger value="cases">Cases</TabsTrigger>
-              <TabsTrigger value="users">Users</TabsTrigger>
-              <TabsTrigger value="inventory">Inventory</TabsTrigger>
-              <TabsTrigger value="messages">Messages</TabsTrigger>
-              <TabsTrigger value="status">Status Management</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="authentication" className="space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Authentication Endpoints</h3>
-                  <p className="text-muted-foreground mb-4">
-                    DentalFlow uses JWT (JSON Web Tokens) for authentication. All authenticated API requests should include the JWT token in the Authorization header.
-                  </p>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">POST</span>
-                      <span className="font-mono text-sm">/api/auth/login</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Login and get JWT token</span>
-                  </div>
-                  <div className="p-4 space-y-2">
-                    <div>
-                      <h4 className="font-medium">Request Body</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`{
-  "email": "user@example.com",
-  "password": "yourpassword"
-}`}
-                      </pre>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Response (200 OK)</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": "123",
-    "name": "John Doe",
-    "email": "user@example.com",
-    "role": "dentist"
+      <div>
+        <h1 className="text-3xl font-bold mb-2">API Documentation</h1>
+        <p className="text-muted-foreground">
+          Comprehensive guide to integrating with the DentalFlow API.
+        </p>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid grid-cols-5 w-full">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="auth">Authentication</TabsTrigger>
+          <TabsTrigger value="cases">Cases</TabsTrigger>
+          <TabsTrigger value="invoices">Invoices</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Getting Started</CardTitle>
+              <CardDescription>
+                Learn how to integrate with the DentalFlow API
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p>
+                The DentalFlow API is a RESTful API that allows you to integrate your dental practice management system with DentalFlow. It provides access to cases, invoices, patients, dentists, and more.
+              </p>
+              
+              <h3 className="text-lg font-semibold mt-4">Base URL</h3>
+              <pre className="bg-muted p-4 rounded-md overflow-auto">
+                <code>https://api.dentalflow.com/v1</code>
+              </pre>
+              
+              <h3 className="text-lg font-semibold mt-4">Rate Limiting</h3>
+              <p>
+                The API is rate limited to 100 requests per minute per API key. If you exceed this limit, you will receive a 429 Too Many Requests response.
+              </p>
+              
+              <h3 className="text-lg font-semibold mt-4">Response Format</h3>
+              <p>
+                All responses are returned in JSON format with the following structure:
+              </p>
+              <pre className="bg-muted p-4 rounded-md overflow-auto">
+                <code>{`{
+  "status": "success",
+  "data": {
+    // Response data
   }
-}`}
-                      </pre>
-                    </div>
-                  </div>
+}`}</code>
+              </pre>
+              
+              <h3 className="text-lg font-semibold mt-4">Error Handling</h3>
+              <p>
+                Errors are returned with an appropriate HTTP status code and a JSON response with the following structure:
+              </p>
+              <pre className="bg-muted p-4 rounded-md overflow-auto">
+                <code>{`{
+  "status": "error",
+  "message": "Error message",
+  "code": "ERROR_CODE"
+}`}</code>
+              </pre>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="auth" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Authentication</CardTitle>
+              <CardDescription>
+                Learn how to authenticate with the DentalFlow API
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p>
+                The DentalFlow API uses API keys for authentication. You can generate API keys from the Settings page in your DentalFlow account.
+              </p>
+              
+              <h3 className="text-lg font-semibold mt-4">API Key Authentication</h3>
+              <p>
+                Include your API key in the Authorization header of your request:
+              </p>
+              <pre className="bg-muted p-4 rounded-md overflow-auto">
+                <code>Authorization: Bearer YOUR_API_KEY</code>
+              </pre>
+              
+              <h3 className="text-lg font-semibold mt-4">Example Request</h3>
+              <pre className="bg-muted p-4 rounded-md overflow-auto">
+                <code>{`curl -X GET "https://api.dentalflow.com/v1/cases" \\
+  -H "Authorization: Bearer YOUR_API_KEY"`}</code>
+              </pre>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="cases" className="space-y-4">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="get-cases">
+              <AccordionTrigger>
+                <div className="flex items-center">
+                  <Badge className="mr-2 bg-blue-500">GET</Badge>
+                  <span>/cases</span>
                 </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">POST</span>
-                      <span className="font-mono text-sm">/api/auth/register</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Register new user</span>
-                  </div>
-                  <div className="p-4 space-y-2">
-                    <div>
-                      <h4 className="font-medium">Request Body</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`{
-  "name": "John Doe",
-  "email": "user@example.com",
-  "password": "yourpassword",
-  "role": "dentist",
-  "clinic": "Bright Smile Dental"
-}`}
-                      </pre>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Response (201 Created)</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`{
-  "message": "User created successfully",
-  "user": {
-    "id": "123",
-    "name": "John Doe",
-    "email": "user@example.com",
-    "role": "dentist"
-  }
-}`}
-                      </pre>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">POST</span>
-                      <span className="font-mono text-sm">/api/auth/logout</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Logout user</span>
-                  </div>
-                  <div className="p-4 space-y-2">
-                    <div>
-                      <h4 className="font-medium">Headers</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
-                      </pre>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Response (200 OK)</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`{
-  "message": "Successfully logged out"
-}`}
-                      </pre>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="cases" className="space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Cases Endpoints</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Manage dental cases including creation, status updates, and details retrieval.
-                  </p>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
-                      <span className="font-mono text-sm">/api/cases</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">List all cases</span>
-                  </div>
-                  <div className="p-4 space-y-2">
-                    <div>
-                      <h4 className="font-medium">Headers</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
-                      </pre>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Query Parameters</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`?status=active&page=1&limit=20&sort=createdAt&order=desc`}
-                      </pre>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Response (200 OK)</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`{
-  "cases": [
-    {
-      "id": "case-123",
-      "patientName": "Alice Smith",
-      "caseType": "Crown",
-      "status": "in-progress",
-      "priority": "high",
-      "createdAt": "2023-04-15T10:30:00Z",
-      "dueDate": "2023-04-30T10:30:00Z",
-      "dentistId": "user-456",
-      "technicianId": "user-789"
-    },
-    // More cases...
-  ],
-  "pagination": {
-    "total": 42,
-    "page": 1,
-    "limit": 20,
-    "pages": 3
-  }
-}`}
-                      </pre>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">POST</span>
-                      <span className="font-mono text-sm">/api/cases</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Create new case</span>
-                  </div>
-                  <div className="p-4 space-y-2">
-                    <div>
-                      <h4 className="font-medium">Headers</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
-                      </pre>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Request Body</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`{
-  "patientName": "Alice Smith",
-  "patientId": "patient-123",
-  "caseType": "Crown",
-  "toothNumbers": [14, 15],
-  "material": "Zirconia",
-  "shade": "A3",
-  "instructions": "Patient has metal allergies",
-  "priority": "high",
-  "dueDate": "2023-04-30T10:30:00Z",
-  "technicianId": "user-789",
-  "attachments": [
-    {
-      "name": "scan.stl",
-      "url": "https://dentalflow.com/files/scan-123.stl"
-    }
-  ]
-}`}
-                      </pre>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
-                      <span className="font-mono text-sm">/api/cases/:id</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Get case details</span>
-                  </div>
-                  <div className="p-4 space-y-2">
-                    <div>
-                      <h4 className="font-medium">Path Parameters</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`id - The case ID`}
-                      </pre>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold mr-2">PUT</span>
-                      <span className="font-mono text-sm">/api/cases/:id</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Update case</span>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold mr-2">DELETE</span>
-                      <span className="font-mono text-sm">/api/cases/:id</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Delete case</span>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="users" className="space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Users Endpoints</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Manage users, roles, and permissions for both dentists and technicians.
-                  </p>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
-                      <span className="font-mono text-sm">/api/users</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">List all users</span>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
-                      <span className="font-mono text-sm">/api/users/:id</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Get user details</span>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold mr-2">PUT</span>
-                      <span className="font-mono text-sm">/api/users/:id</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Update user</span>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold mr-2">DELETE</span>
-                      <span className="font-mono text-sm">/api/users/:id</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Delete user</span>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="inventory" className="space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Inventory Endpoints</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Manage inventory items, categories, suppliers, and stock levels.
-                  </p>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
-                      <span className="font-mono text-sm">/api/inventory</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">List all inventory items</span>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">POST</span>
-                      <span className="font-mono text-sm">/api/inventory</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Create inventory item</span>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
-                      <span className="font-mono text-sm">/api/inventory/categories</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">List all categories</span>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
-                      <span className="font-mono text-sm">/api/inventory/suppliers</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">List all suppliers</span>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="messages" className="space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Messages Endpoints</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Manage communications between dentists and technicians.
-                  </p>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
-                      <span className="font-mono text-sm">/api/messages</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">List conversations</span>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
-                      <span className="font-mono text-sm">/api/messages/:conversationId</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Get conversation messages</span>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">POST</span>
-                      <span className="font-mono text-sm">/api/messages</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Send message</span>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
-                      <span className="font-mono text-sm">/api/messages/case/:caseId</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Get case-specific messages</span>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="status" className="space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">Case Status Management Endpoints</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Endpoints for managing and tracking case status changes throughout the dental workflow.
-                  </p>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">PUT</span>
-                      <span className="font-mono text-sm">/api/cases/:id/status</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Update case status</span>
-                  </div>
-                  <div className="p-4 space-y-2">
-                    <div>
-                      <h4 className="font-medium">Headers</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
-                      </pre>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Request Body</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`{
-  "status": "in progress",
-  "notes": "Started working on the crown preparation"
-}`}
-                      </pre>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Response (200 OK)</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`{
-  "id": "case-123",
-  "status": "in progress",
-  "previousStatus": "new",
-  "updatedAt": "2025-04-16T09:30:00Z",
-  "updatedBy": {
-    "id": "user-789",
-    "name": "Tom Wilson"
-  }
-}`}
-                      </pre>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
-                      <span className="font-mono text-sm">/api/cases/:id/status-history</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Get case status history</span>
-                  </div>
-                  <div className="p-4 space-y-2">
-                    <div>
-                      <h4 className="font-medium">Headers</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
-                      </pre>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Response (200 OK)</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`{
-  "caseId": "case-123",
-  "currentStatus": "in progress",
-  "history": [
-    {
-      "status": "new",
-      "timestamp": "2025-04-15T10:23:00Z",
-      "changedBy": {
-        "id": "user-456",
-        "name": "Dr. Alice Johnson"
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <p>Retrieve a list of all cases.</p>
+                  
+                  <h4 className="font-semibold">Query Parameters</h4>
+                  <ul className="list-disc pl-6">
+                    <li><span className="font-mono">status</span> - Filter by case status</li>
+                    <li><span className="font-mono">dentist_id</span> - Filter by dentist</li>
+                    <li><span className="font-mono">patient_id</span> - Filter by patient</li>
+                    <li><span className="font-mono">limit</span> - Number of cases to return (default: 50)</li>
+                    <li><span className="font-mono">offset</span> - Offset for pagination (default: 0)</li>
+                  </ul>
+                  
+                  <h4 className="font-semibold">Example Response</h4>
+                  <pre className="bg-muted p-4 rounded-md overflow-auto">
+                    <code>{`{
+  "status": "success",
+  "data": {
+    "cases": [
+      {
+        "id": "C-2025-042",
+        "patient": {
+          "id": "P-001",
+          "name": "John Smith"
+        },
+        "dentist": {
+          "id": "D-001",
+          "name": "Dr. Alice Johnson"
+        },
+        "status": "in progress",
+        "type": "Crown",
+        "created_at": "2025-04-15T10:30:00Z",
+        "due_date": "2025-04-22T10:30:00Z"
       },
-      "notes": "Case created"
-    },
-    {
-      "status": "in progress",
-      "timestamp": "2025-04-16T09:30:00Z",
-      "changedBy": {
-        "id": "user-789",
-        "name": "Tom Wilson"
-      },
-      "notes": "Started working on the crown preparation"
+      // More cases...
+    ],
+    "meta": {
+      "total": 120,
+      "limit": 50,
+      "offset": 0
     }
-  ]
-}`}
-                      </pre>
-                    </div>
-                  </div>
+  }
+}`}</code>
+                  </pre>
                 </div>
-                
-                <div className="border rounded-lg">
-                  <div className="flex items-center justify-between border-b p-4">
-                    <div className="flex items-center">
-                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
-                      <span className="font-mono text-sm">/api/cases/status-counts</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Get counts of cases by status</span>
-                  </div>
-                  <div className="p-4 space-y-2">
-                    <div>
-                      <h4 className="font-medium">Headers</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
-                      </pre>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Query Parameters</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`?period=week&technicianId=user-789  # Optional filters`}
-                      </pre>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Response (200 OK)</h4>
-                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
-{`{
-  "counts": {
-    "new": 5,
-    "in progress": 12,
-    "pending review": 3,
-    "completed": 8,
-    "delivered": 15
-  },
-  "total": 43
-}`}
-                      </pre>
-                    </div>
-                  </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="get-case">
+              <AccordionTrigger>
+                <div className="flex items-center">
+                  <Badge className="mr-2 bg-blue-500">GET</Badge>
+                  <span>/cases/:id</span>
                 </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Database Schema</CardTitle>
-          <CardDescription>
-            Core data models for the DentalFlow backend
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <h3 className="text-lg font-medium mb-2">Users</h3>
-            <pre className="bg-muted p-3 rounded-md text-sm font-mono overflow-x-auto">
-{`Table: users
-- id (PK): UUID
-- name: STRING
-- email: STRING (unique)
-- password_hash: STRING
-- role: ENUM ['dentist', 'technician', 'admin']
-- clinic: STRING
-- created_at: TIMESTAMP
-- updated_at: TIMESTAMP`}
-            </pre>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium mb-2">Cases</h3>
-            <pre className="bg-muted p-3 rounded-md text-sm font-mono overflow-x-auto">
-{`Table: cases
-- id (PK): UUID
-- patient_name: STRING
-- patient_id: STRING (ref to external system)
-- case_type: STRING
-- tooth_numbers: ARRAY[INTEGER]
-- material: STRING
-- shade: STRING
-- instructions: TEXT
-- status: ENUM ['new', 'in progress', 'pending review', 'completed', 'delivered']
-- priority: ENUM ['low', 'medium', 'high', 'urgent']
-- dentist_id: UUID (FK to users)
-- technician_id: UUID (FK to users)
-- due_date: TIMESTAMP
-- completed_date: TIMESTAMP
-- created_at: TIMESTAMP
-- updated_at: TIMESTAMP`}
-            </pre>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium mb-2">Case Status History</h3>
-            <pre className="bg-muted p-3 rounded-md text-sm font-mono overflow-x-auto">
-{`Table: case_status_history
-- id (PK): UUID
-- case_id: UUID (FK to cases)
-- status: ENUM ['new', 'in progress', 'pending review', 'completed', 'delivered']
-- previous_status: ENUM ['new', 'in progress', 'pending review', 'completed', 'delivered']
-- changed_by: UUID (FK to users)
-- notes: TEXT
-- timestamp: TIMESTAMP`}
-            </pre>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium mb-2">Case Attachments</h3>
-            <pre className="bg-muted p-3 rounded-md text-sm font-mono overflow-x-auto">
-{`Table: case_attachments
-- id (PK): UUID
-- case_id: UUID (FK to cases)
-- name: STRING
-- file_type: STRING
-- url: STRING
-- uploaded_by: UUID (FK to users)
-- created_at: TIMESTAMP`}
-            </pre>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium mb-2">Messages</h3>
-            <pre className="bg-muted p-3 rounded-md text-sm font-mono overflow-x-auto">
-{`Table: messages
-- id (PK): UUID
-- conversation_id: UUID
-- sender_id: UUID (FK to users)
-- recipient_id: UUID (FK to users)
-- case_id: UUID (FK to cases, nullable)
-- content: TEXT
-- read: BOOLEAN
-- created_at: TIMESTAMP
-- updated_at: TIMESTAMP`}
-            </pre>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium mb-2">Message Attachments</h3>
-            <pre className="bg-muted p-3 rounded-md text-sm font-mono overflow-x-auto">
-{`Table: message_attachments
-- id (PK): UUID
-- message_id: UUID (FK to messages)
-- name: STRING
-- file_type: STRING
-- url: STRING
-- created_at: TIMESTAMP`}
-            </pre>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium mb-2">Inventory Items</h3>
-            <pre className="bg-muted p-3 rounded-md text-sm font-mono overflow-x-auto">
-{`Table: inventory_items
-- id (PK): UUID
-- name: STRING
-- description: TEXT
-- sku: STRING
-- category_id: UUID (FK to inventory_categories)
-- supplier_id: UUID (FK to inventory_suppliers)
-- quantity: INTEGER
-- min_quantity: INTEGER
-- unit_price: DECIMAL
-- location: STRING
-- last_ordered: TIMESTAMP
-- created_at: TIMESTAMP
-- updated_at: TIMESTAMP`}
-            </pre>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium mb-2">Inventory Categories</h3>
-            <pre className="bg-muted p-3 rounded-md text-sm font-mono overflow-x-auto">
-{`Table: inventory_categories
-- id (PK): UUID
-- name: STRING
-- description: TEXT
-- created_at: TIMESTAMP
-- updated_at: TIMESTAMP`}
-            </pre>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium mb-2">Inventory Suppliers</h3>
-            <pre className="bg-muted p-3 rounded-md text-sm font-mono overflow-x-auto">
-{`Table: inventory_suppliers
-- id (PK): UUID
-- name: STRING
-- contact_name: STRING
-- email: STRING
-- phone: STRING
-- address: TEXT
-- website: STRING
-- created_at: TIMESTAMP
-- updated_at: TIMESTAMP`}
-            </pre>
-          </div>
-        </CardContent>
-      </Card>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <p>Retrieve details of a specific case.</p>
+                  
+                  <h4 className="font-semibold">Path Parameters</h4>
+                  <ul className="list-disc pl-6">
+                    <li><span className="font-mono">id</span> - The ID of the case</li>
+                  </ul>
+                  
+                  <h4 className="font-semibold">Example Response</h4>
+                  <pre className="bg-muted p-4 rounded-md overflow-auto">
+                    <code>{`{
+  "status": "success",
+  "data": {
+    "id": "C-2025-042",
+    "patient": {
+      "id": "P-001",
+      "name": "John Smith",
+      "contact": {
+        "email": "john.smith@example.com",
+        "phone": "555-123-4567"
+      }
+    },
+    "dentist": {
+      "id": "D-001",
+      "name": "Dr. Alice Johnson",
+      "contact": {
+        "email": "alice.johnson@example.com",
+        "phone": "555-987-6543"
+      }
+    },
+    "status": "in progress",
+    "type": "Crown",
+    "restoration_type": "Porcelain",
+    "shade": "A2",
+    "created_at": "2025-04-15T10:30:00Z",
+    "due_date": "2025-04-22T10:30:00Z",
+    "last_updated": "2025-04-16T14:20:00Z",
+    "notes": "Patient prefers a natural look",
+    "attachments": [
+      {
+        "id": "ATT-001",
+        "name": "X-Ray",
+        "url": "https://api.dentalflow.com/v1/attachments/ATT-001",
+        "content_type": "image/jpeg",
+        "created_at": "2025-04-15T10:35:00Z"
+      }
+    ],
+    "status_history": [
+      {
+        "status": "new",
+        "changed_at": "2025-04-15T10:30:00Z",
+        "changed_by": {
+          "id": "D-001",
+          "name": "Dr. Alice Johnson"
+        },
+        "notes": "Case created"
+      },
+      {
+        "status": "in progress",
+        "changed_at": "2025-04-16T14:20:00Z",
+        "changed_by": {
+          "id": "T-001",
+          "name": "Tom Miller"
+        },
+        "notes": "Started working on the crown"
+      }
+    ]
+  }
+}`}</code>
+                  </pre>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="post-case-status">
+              <AccordionTrigger>
+                <div className="flex items-center">
+                  <Badge className="mr-2 bg-green-500">POST</Badge>
+                  <span>/cases/:id/status</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <p>Update the status of a case.</p>
+                  
+                  <h4 className="font-semibold">Path Parameters</h4>
+                  <ul className="list-disc pl-6">
+                    <li><span className="font-mono">id</span> - The ID of the case</li>
+                  </ul>
+                  
+                  <h4 className="font-semibold">Request Body</h4>
+                  <pre className="bg-muted p-4 rounded-md overflow-auto">
+                    <code>{`{
+  "status": "in progress",
+  "notes": "Started working on the crown"
+}`}</code>
+                  </pre>
+                  
+                  <h4 className="font-semibold">Example Response</h4>
+                  <pre className="bg-muted p-4 rounded-md overflow-auto">
+                    <code>{`{
+  "status": "success",
+  "data": {
+    "id": "C-2025-042",
+    "status": "in progress",
+    "status_updated_at": "2025-04-16T14:20:00Z",
+    "status_history": [
+      {
+        "status": "new",
+        "changed_at": "2025-04-15T10:30:00Z",
+        "changed_by": {
+          "id": "D-001",
+          "name": "Dr. Alice Johnson"
+        },
+        "notes": "Case created"
+      },
+      {
+        "status": "in progress",
+        "changed_at": "2025-04-16T14:20:00Z",
+        "changed_by": {
+          "id": "T-001",
+          "name": "Tom Miller"
+        },
+        "notes": "Started working on the crown"
+      }
+    ]
+  }
+}`}</code>
+                  </pre>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </TabsContent>
+        
+        <TabsContent value="invoices" className="space-y-4">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="get-invoices">
+              <AccordionTrigger>
+                <div className="flex items-center">
+                  <Badge className="mr-2 bg-blue-500">GET</Badge>
+                  <span>/invoices</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <p>Retrieve a list of all invoices.</p>
+                  
+                  <h4 className="font-semibold">Query Parameters</h4>
+                  <ul className="list-disc pl-6">
+                    <li><span className="font-mono">status</span> - Filter by invoice status (paid, unpaid, overdue)</li>
+                    <li><span className="font-mono">dentist_id</span> - Filter by dentist</li>
+                    <li><span className="font-mono">patient_id</span> - Filter by patient</li>
+                    <li><span className="font-mono">case_id</span> - Filter by related case</li>
+                    <li><span className="font-mono">start_date</span> - Filter by invoice date (start)</li>
+                    <li><span className="font-mono">end_date</span> - Filter by invoice date (end)</li>
+                    <li><span className="font-mono">limit</span> - Number of invoices to return (default: 50)</li>
+                    <li><span className="font-mono">offset</span> - Offset for pagination (default: 0)</li>
+                  </ul>
+                  
+                  <h4 className="font-semibold">Example Response</h4>
+                  <pre className="bg-muted p-4 rounded-md overflow-auto">
+                    <code>{`{
+  "status": "success",
+  "data": {
+    "invoices": [
+      {
+        "id": "INV-2025-042",
+        "patient": {
+          "id": "P-001",
+          "name": "John Smith"
+        },
+        "dentist": {
+          "id": "D-001",
+          "name": "Dr. Alice Johnson"
+        },
+        "case_id": "C-2025-042",
+        "status": "unpaid",
+        "amount": 1350.00,
+        "date": "2025-04-15",
+        "due_date": "2025-04-30"
+      },
+      // More invoices...
+    ],
+    "meta": {
+      "total": 85,
+      "limit": 50,
+      "offset": 0
+    }
+  }
+}`}</code>
+                  </pre>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="get-invoice">
+              <AccordionTrigger>
+                <div className="flex items-center">
+                  <Badge className="mr-2 bg-blue-500">GET</Badge>
+                  <span>/invoices/:id</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <p>Retrieve details of a specific invoice.</p>
+                  
+                  <h4 className="font-semibold">Path Parameters</h4>
+                  <ul className="list-disc pl-6">
+                    <li><span className="font-mono">id</span> - The ID of the invoice</li>
+                  </ul>
+                  
+                  <h4 className="font-semibold">Example Response</h4>
+                  <pre className="bg-muted p-4 rounded-md overflow-auto">
+                    <code>{`{
+  "status": "success",
+  "data": {
+    "id": "INV-2025-042",
+    "patient": {
+      "id": "P-001",
+      "name": "John Smith",
+      "contact": {
+        "email": "john.smith@example.com",
+        "phone": "555-123-4567"
+      }
+    },
+    "dentist": {
+      "id": "D-001",
+      "name": "Dr. Alice Johnson",
+      "contact": {
+        "email": "alice.johnson@example.com",
+        "phone": "555-987-6543"
+      }
+    },
+    "case_id": "C-2025-042",
+    "status": "unpaid",
+    "date": "2025-04-15",
+    "due_date": "2025-04-30",
+    "items": [
+      {
+        "id": 1,
+        "description": "Crown - Porcelain/Ceramic",
+        "quantity": 1,
+        "unit_price": 950.00,
+        "amount": 950.00
+      },
+      {
+        "id": 2,
+        "description": "Impression - Digital Scan",
+        "quantity": 1,
+        "unit_price": 120.00,
+        "amount": 120.00
+      },
+      {
+        "id": 3,
+        "description": "Temporary Crown",
+        "quantity": 1,
+        "unit_price": 180.00,
+        "amount": 180.00
+      }
+    ],
+    "subtotal": 1250.00,
+    "tax": 100.00,
+    "total": 1350.00,
+    "notes": "Please ensure payment is made before the due date. Thank you for your business.",
+    "payments": []
+  }
+}`}</code>
+                  </pre>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="post-payment">
+              <AccordionTrigger>
+                <div className="flex items-center">
+                  <Badge className="mr-2 bg-green-500">POST</Badge>
+                  <span>/invoices/:id/payments</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <p>Record a payment for an invoice.</p>
+                  
+                  <h4 className="font-semibold">Path Parameters</h4>
+                  <ul className="list-disc pl-6">
+                    <li><span className="font-mono">id</span> - The ID of the invoice</li>
+                  </ul>
+                  
+                  <h4 className="font-semibold">Request Body</h4>
+                  <pre className="bg-muted p-4 rounded-md overflow-auto">
+                    <code>{`{
+  "amount": 1350.00,
+  "method": "credit",
+  "date": "2025-04-18",
+  "reference": "TRANS-12345"
+}`}</code>
+                  </pre>
+                  
+                  <h4 className="font-semibold">Example Response</h4>
+                  <pre className="bg-muted p-4 rounded-md overflow-auto">
+                    <code>{`{
+  "status": "success",
+  "data": {
+    "id": "PAY-001",
+    "invoice_id": "INV-2025-042",
+    "amount": 1350.00,
+    "method": "credit",
+    "date": "2025-04-18",
+    "reference": "TRANS-12345",
+    "created_at": "2025-04-18T10:30:00Z",
+    "created_by": {
+      "id": "U-001",
+      "name": "Jane Doe"
+    }
+  }
+}`}</code>
+                  </pre>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </TabsContent>
+        
+        <TabsContent value="users" className="space-y-4">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="get-dentists">
+              <AccordionTrigger>
+                <div className="flex items-center">
+                  <Badge className="mr-2 bg-blue-500">GET</Badge>
+                  <span>/dentists</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <p>Retrieve a list of all dentists.</p>
+                  
+                  <h4 className="font-semibold">Query Parameters</h4>
+                  <ul className="list-disc pl-6">
+                    <li><span className="font-mono">limit</span> - Number of dentists to return (default: 50)</li>
+                    <li><span className="font-mono">offset</span> - Offset for pagination (default: 0)</li>
+                  </ul>
+                  
+                  <h4 className="font-semibold">Example Response</h4>
+                  <pre className="bg-muted p-4 rounded-md overflow-auto">
+                    <code>{`{
+  "status": "success",
+  "data": {
+    "dentists": [
+      {
+        "id": "D-001",
+        "name": "Dr. Alice Johnson",
+        "email": "alice.johnson@example.com",
+        "phone": "555-987-6543",
+        "practice": "Johnson Dental Clinic",
+        "created_at": "2025-01-15T10:30:00Z"
+      },
+      // More dentists...
+    ],
+    "meta": {
+      "total": 25,
+      "limit": 50,
+      "offset": 0
+    }
+  }
+}`}</code>
+                  </pre>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="get-technicians">
+              <AccordionTrigger>
+                <div className="flex items-center">
+                  <Badge className="mr-2 bg-blue-500">GET</Badge>
+                  <span>/technicians</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <p>Retrieve a list of all lab technicians.</p>
+                  
+                  <h4 className="font-semibold">Query Parameters</h4>
+                  <ul className="list-disc pl-6">
+                    <li><span className="font-mono">limit</span> - Number of technicians to return (default: 50)</li>
+                    <li><span className="font-mono">offset</span> - Offset for pagination (default: 0)</li>
+                  </ul>
+                  
+                  <h4 className="font-semibold">Example Response</h4>
+                  <pre className="bg-muted p-4 rounded-md overflow-auto">
+                    <code>{`{
+  "status": "success",
+  "data": {
+    "technicians": [
+      {
+        "id": "T-001",
+        "name": "Tom Miller",
+        "email": "tom.miller@example.com",
+        "phone": "555-111-2222",
+        "specialization": "Crowns and Bridges",
+        "created_at": "2025-01-20T10:30:00Z"
+      },
+      // More technicians...
+    ],
+    "meta": {
+      "total": 15,
+      "limit": 50,
+      "offset": 0
+    }
+  }
+}`}</code>
+                  </pre>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

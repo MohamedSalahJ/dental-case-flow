@@ -13,6 +13,9 @@ import CaseDetail from "./pages/CaseDetail";
 import NewCase from "./pages/NewCase";
 import Calendar from "./pages/Calendar";
 import Messages from "./pages/Messages";
+import Invoices from "./pages/Invoices";
+import InvoiceDetail from "./pages/InvoiceDetail";
+import NewInvoice from "./pages/NewInvoice";
 import Reports from "./pages/Reports";
 import Inventory from "./pages/Inventory";
 import AddEditInventoryItem from "./pages/AddEditInventoryItem";
@@ -40,6 +43,9 @@ const App = () => (
           <Route path="/new-case" element={<NewCase />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/invoices" element={<Invoices />} />
+          <Route path="/invoices/:id" element={<InvoiceDetail />} />
+          <Route path="/invoices/new" element={<NewInvoice />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/inventory/add" element={<AddEditInventoryItem />} />
