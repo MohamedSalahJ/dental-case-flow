@@ -18,6 +18,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Filter, X } from "lucide-react";
 import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 interface CaseFilterProps {
   onFilterChange: (filters: any) => void;
@@ -72,7 +73,7 @@ const CaseFilter = ({ onFilterChange }: CaseFilterProps) => {
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Statuses</SelectItem>
+            <SelectItem value="all">All Statuses</SelectItem>
             <SelectItem value="new">New</SelectItem>
             <SelectItem value="in progress">In Progress</SelectItem>
             <SelectItem value="pending review">Pending Review</SelectItem>
@@ -121,7 +122,7 @@ const CaseFilter = ({ onFilterChange }: CaseFilterProps) => {
                       <SelectValue placeholder="Any Type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any Type</SelectItem>
+                      <SelectItem value="all">Any Type</SelectItem>
                       <SelectItem value="crown">Crown</SelectItem>
                       <SelectItem value="bridge">Bridge</SelectItem>
                       <SelectItem value="veneer">Veneer</SelectItem>
@@ -142,7 +143,7 @@ const CaseFilter = ({ onFilterChange }: CaseFilterProps) => {
                       <SelectValue placeholder="Any Priority" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any Priority</SelectItem>
+                      <SelectItem value="all">Any Priority</SelectItem>
                       <SelectItem value="high">High</SelectItem>
                       <SelectItem value="medium">Medium</SelectItem>
                       <SelectItem value="low">Low</SelectItem>
@@ -203,6 +204,3 @@ const CaseFilter = ({ onFilterChange }: CaseFilterProps) => {
 };
 
 export default CaseFilter;
-
-// Import for Badge that was missing
-import { Badge } from "@/components/ui/badge";
