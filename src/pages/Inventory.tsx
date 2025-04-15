@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, AlertTriangle, RefreshCw, Package, FileText, Pencil } from "lucide-react";
+import { Plus, Search, AlertTriangle, RefreshCw, Package, FileText, Pencil, Tag, Truck } from "lucide-react";
 
 const inventoryData = [
   {
@@ -90,10 +90,20 @@ const Inventory = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold tracking-tight">Inventory Management</h1>
-          <Button onClick={() => navigate("/inventory/add")}>
-            <Plus className="mr-2 h-5 w-5" />
-            Add New Item
-          </Button>
+          <div className="flex space-x-2">
+            <Button variant="outline" onClick={() => navigate("/inventory/categories")}>
+              <Tag className="mr-2 h-5 w-5" />
+              Manage Categories
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/inventory/suppliers")}>
+              <Truck className="mr-2 h-5 w-5" />
+              Manage Suppliers
+            </Button>
+            <Button onClick={() => navigate("/inventory/add")}>
+              <Plus className="mr-2 h-5 w-5" />
+              Add New Item
+            </Button>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -230,6 +230,17 @@ const AddEditInventoryItem = () => {
                           </SelectContent>
                         </Select>
                         <FormMessage />
+                        <Button 
+                          type="button" 
+                          variant="link" 
+                          className="p-0 h-auto text-xs" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            navigate("/inventory/categories");
+                          }}
+                        >
+                          Manage Categories
+                        </Button>
                       </FormItem>
                     )}
                   />
@@ -317,6 +328,17 @@ const AddEditInventoryItem = () => {
                           </SelectContent>
                         </Select>
                         <FormMessage />
+                        <Button 
+                          type="button" 
+                          variant="link" 
+                          className="p-0 h-auto text-xs" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            navigate("/inventory/suppliers");
+                          }}
+                        >
+                          Manage Suppliers
+                        </Button>
                       </FormItem>
                     )}
                   />

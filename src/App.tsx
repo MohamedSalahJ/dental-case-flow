@@ -13,6 +13,8 @@ import Messages from "./pages/Messages";
 import Reports from "./pages/Reports";
 import Inventory from "./pages/Inventory";
 import AddEditInventoryItem from "./pages/AddEditInventoryItem";
+import ManageCategories from "./pages/ManageCategories";
+import ManageSuppliers from "./pages/ManageSuppliers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,8 @@ const App = () => (
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/inventory/add" element={<AddEditInventoryItem />} />
           <Route path="/inventory/edit/:id" element={<AddEditInventoryItem />} />
+          <Route path="/inventory/categories" element={<ManageCategories />} />
+          <Route path="/inventory/suppliers" element={<ManageSuppliers />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
