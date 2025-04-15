@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import MainLayout from "../components/layout/MainLayout";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Upload, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
