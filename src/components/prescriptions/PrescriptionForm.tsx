@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,8 +30,22 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 
-const PrescriptionForm = () => {
+interface PrescriptionFormProps {
+  id?: string;
+  activeTab?: string;
+  setActiveTab?: Dispatch<SetStateAction<string>>;
+}
+
+const PrescriptionForm = ({ id, activeTab, setActiveTab }: PrescriptionFormProps) => {
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  
+  const handleNextTab = () => {
+    if (setActiveTab && activeTab === 'details') {
+      setActiveTab('prescription');
+    } else if (setActiveTab && activeTab === 'prescription') {
+      setActiveTab('files');
+    }
+  };
   
   return (
     <Card className="w-full max-w-4xl mx-auto prescription-paper">
@@ -249,10 +263,16 @@ const PrescriptionForm = () => {
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button variant="outline">Cancel</Button>
-        <Button>
-          <Save className="mr-2 h-4 w-4" />
-          Save Prescription
-        </Button>
+        {activeTab === 'details' || activeTab === 'prescription' ? (
+          <Button onClick={handleNextTab}>
+            Next
+          </Button>
+        ) : (
+          <Button type="submit" form={id}>
+            <Save className="mr-2 h-4 w-4" />
+            Save Prescription
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

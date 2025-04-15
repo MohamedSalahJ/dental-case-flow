@@ -52,18 +52,53 @@ const NewCase = () => {
                 <TabsTrigger value="prescription">Prescription</TabsTrigger>
                 <TabsTrigger value="files">Attachments</TabsTrigger>
               </TabsList>
+              
               <TabsContent value="details" className="space-y-4 pt-4">
-                <PrescriptionForm id="prescription-form" activeTab={activeTab} setActiveTab={setActiveTab} />
+                <PrescriptionForm 
+                  id="prescription-form" 
+                  activeTab={activeTab} 
+                  setActiveTab={setActiveTab} 
+                />
               </TabsContent>
+              
               <TabsContent value="prescription" className="space-y-4 pt-4">
-                <div className="text-center py-12 text-muted-foreground">
-                  Please complete patient details first
-                </div>
+                {activeTab === "prescription" ? (
+                  <PrescriptionForm 
+                    id="prescription-form" 
+                    activeTab={activeTab} 
+                    setActiveTab={setActiveTab} 
+                  />
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    Please complete patient details first
+                  </div>
+                )}
               </TabsContent>
+              
               <TabsContent value="files" className="space-y-4 pt-4">
-                <div className="text-center py-12 text-muted-foreground">
-                  Please complete prescription details first
-                </div>
+                {activeTab === "files" ? (
+                  <div className="space-y-4">
+                    <div className="bg-muted/50 border-2 border-dashed border-muted-foreground/20 rounded-lg p-8 text-center">
+                      <div className="mx-auto flex flex-col items-center justify-center gap-1">
+                        <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                        <h3 className="text-lg font-semibold">Drop files here or click to upload</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Upload intraoral photos, X-rays, or any other relevant files
+                        </p>
+                        <Button variant="secondary" size="sm">
+                          Select Files
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Supported file types: JPEG, PNG, PDF, STL, DCM (max 25MB per file)
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    Please complete prescription details first
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </CardContent>
