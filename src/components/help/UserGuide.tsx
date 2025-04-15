@@ -18,6 +18,7 @@ const UserGuide = () => {
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="cases">Cases</TabsTrigger>
+              <TabsTrigger value="workflow">Workflow</TabsTrigger>
               <TabsTrigger value="calendar">Calendar</TabsTrigger>
               <TabsTrigger value="messages">Messages</TabsTrigger>
               <TabsTrigger value="inventory">Inventory</TabsTrigger>
@@ -120,19 +121,19 @@ const UserGuide = () => {
                 </p>
                 <ul>
                   <li>
-                    <strong>Pending</strong> - Case has been submitted but not yet started
+                    <strong>New</strong> - Case has been submitted but not yet started
                   </li>
                   <li>
                     <strong>In Progress</strong> - Technician is actively working on the case
                   </li>
                   <li>
-                    <strong>Review</strong> - Case is ready for review by the dentist
+                    <strong>Pending Review</strong> - Case is ready for review by the dentist
                   </li>
                   <li>
-                    <strong>Completed</strong> - Case has been finished and delivered
+                    <strong>Completed</strong> - Case has been finished and approved
                   </li>
                   <li>
-                    <strong>Cancelled</strong> - Case has been cancelled
+                    <strong>Delivered</strong> - Case has been delivered to the dentist
                   </li>
                 </ul>
                 
@@ -153,7 +154,7 @@ const UserGuide = () => {
                   You can filter cases by:
                 </p>
                 <ul>
-                  <li>Status (Pending, In Progress, Review, Completed, Cancelled)</li>
+                  <li>Status (New, In Progress, Pending Review, Completed, Delivered)</li>
                   <li>Priority (Low, Medium, High, Urgent)</li>
                   <li>Date range (created or due date)</li>
                   <li>Case type (Crown, Bridge, Denture, etc.)</li>
@@ -162,6 +163,135 @@ const UserGuide = () => {
                 <p>
                   Use the search box to find specific cases by patient name, case ID, or tooth numbers.
                 </p>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="workflow" className="space-y-4">
+              <div className="prose max-w-none">
+                <h3>Case Workflow Management</h3>
+                <p>
+                  DentalFlow implements a structured workflow for case progression from creation to delivery.
+                </p>
+                
+                <h4>Workflow Overview</h4>
+                <p>Each case follows a standard workflow:</p>
+                
+                <ol>
+                  <li>
+                    <strong>Case Creation</strong> - Dentist submits a new case with prescription details
+                    <ul>
+                      <li>Status: New</li>
+                      <li>Assigned to: Unassigned or pre-selected technician</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Case Assignment</strong> - Lab manager assigns case to a technician
+                    <ul>
+                      <li>Status: New</li>
+                      <li>Assigned to: Selected technician</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Work in Progress</strong> - Technician begins working on the case
+                    <ul>
+                      <li>Status: In Progress</li>
+                      <li>Technician can communicate with dentist for clarifications</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Quality Review</strong> - Case is ready for review
+                    <ul>
+                      <li>Status: Pending Review</li>
+                      <li>Dentist is notified to review the work</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Completion</strong> - Dentist approves the work
+                    <ul>
+                      <li>Status: Completed</li>
+                      <li>Lab prepares for delivery</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Delivery</strong> - Case is delivered to the dentist
+                    <ul>
+                      <li>Status: Delivered</li>
+                      <li>Billing information is updated</li>
+                    </ul>
+                  </li>
+                </ol>
+                
+                <h4>Status Change Procedures</h4>
+                
+                <p>To change a case status as a technician:</p>
+                
+                <ol>
+                  <li>Navigate to the case detail page</li>
+                  <li>Click on the "Update Status" button</li>
+                  <li>Select the new status from the dropdown</li>
+                  <li>Add notes explaining the change (required)</li>
+                  <li>Click "Save Status"</li>
+                </ol>
+                
+                <p>
+                  The system records all status changes in the case history, including who made the change,
+                  when it was made, and any notes provided.
+                </p>
+                
+                <h4>Status Notifications</h4>
+                
+                <p>
+                  When a case status changes, the system automatically notifies relevant parties:
+                </p>
+                
+                <ul>
+                  <li>Dentist receives notifications when:
+                    <ul>
+                      <li>Case moves to "Pending Review" (action required)</li>
+                      <li>Case is marked as "Completed"</li>
+                      <li>Case is "Delivered"</li>
+                    </ul>
+                  </li>
+                  <li>Technicians receive notifications when:
+                    <ul>
+                      <li>New case is assigned to them</li>
+                      <li>Dentist provides feedback during review</li>
+                    </ul>
+                  </li>
+                  <li>Lab managers receive notifications for:
+                    <ul>
+                      <li>All new cases</li>
+                      <li>Cases approaching due dates</li>
+                      <li>Cases with status issues (e.g., stuck in one status too long)</li>
+                    </ul>
+                  </li>
+                </ul>
+                
+                <h4>Status Dashboard</h4>
+                
+                <p>
+                  The dashboard provides a quick overview of case statuses:
+                </p>
+                
+                <ul>
+                  <li>Count of cases by status</li>
+                  <li>Cases requiring immediate attention</li>
+                  <li>Status distribution chart</li>
+                  <li>Status change timeline for individual cases</li>
+                </ul>
+                
+                <h4>Status Reporting</h4>
+                
+                <p>
+                  Generate reports on case status metrics:
+                </p>
+                
+                <ul>
+                  <li>Average time spent in each status</li>
+                  <li>Technician efficiency metrics</li>
+                  <li>Status bottleneck identification</li>
+                  <li>Historical trends in status progression</li>
+                </ul>
               </div>
             </TabsContent>
             

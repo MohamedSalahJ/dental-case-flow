@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const ApiDocumentation = () => {
   return (
@@ -13,6 +14,72 @@ const ApiDocumentation = () => {
           This documentation is for backend developers who need to integrate with the DentalFlow API.
         </AlertDescription>
       </Alert>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Entity Relationship Diagram</CardTitle>
+          <CardDescription>
+            Visual representation of the DentalFlow database structure and relationships
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="border rounded-lg p-4 bg-muted/30">
+            <AspectRatio ratio={16/9}>
+              <div className="w-full h-full bg-white p-4 overflow-auto">
+                <pre className="text-xs font-mono">
+{`
++----------------+       +----------------+       +----------------+
+|     USERS      |       |     CASES      |       |  CASE_STATUS   |
++----------------+       +----------------+       +----------------+
+| id (PK)        |       | id (PK)        |       | id (PK)        |
+| name           |       | patient_name   |       | case_id (FK)   |
+| email          |<----->| dentist_id (FK)|       | status         |
+| password_hash  |       | technician_id  |<----->| changed_by (FK)|
+| role           |       | type           |       | timestamp      |
+| clinic         |       | tooth          |       | notes          |
+| created_at     |       | material       |       +----------------+
+| updated_at     |       | shade          |
++----------------+       | status         |       +----------------+
+        ^                | priority       |       |   MESSAGES     |
+        |                | notes          |       +----------------+
+        |                | due_date       |       | id (PK)        |
+        |                | created_at     |       | case_id (FK)   |
+        |                | updated_at     |<----->| sender_id (FK) |
+        |                +----------------+       | content        |
+        |                        ^                | timestamp      |
+        |                        |                | attachments    |
++----------------+               |                +----------------+
+|   INVENTORY    |               |
++----------------+       +----------------+       +----------------+
+| id (PK)        |       | CASE_ATTACHMENTS|      |    SUPPLIERS   |
+| name           |       +----------------+       +----------------+
+| category_id    |       | id (PK)        |       | id (PK)        |
+| supplier_id    |<----->| case_id (FK)   |       | name           |
+| quantity       |       | name           |       | contact_name   |
+| min_quantity   |       | file_type      |       | email          |
+| price          |       | url            |       | phone          |
+| location       |       | uploaded_by    |       | address        |
+| created_at     |       | created_at     |       | created_at     |
+| updated_at     |       +----------------+       | updated_at     |
++----------------+                                +----------------+
+        ^
+        |
++----------------+
+|   CATEGORIES   |
++----------------+
+| id (PK)        |
+| name           |
+| description    |
+| created_at     |
+| updated_at     |
++----------------+
+`}
+                </pre>
+              </div>
+            </AspectRatio>
+          </div>
+        </CardContent>
+      </Card>
       
       <Card>
         <CardHeader>
@@ -29,6 +96,7 @@ const ApiDocumentation = () => {
               <TabsTrigger value="users">Users</TabsTrigger>
               <TabsTrigger value="inventory">Inventory</TabsTrigger>
               <TabsTrigger value="messages">Messages</TabsTrigger>
+              <TabsTrigger value="status">Status Management</TabsTrigger>
             </TabsList>
             
             <TabsContent value="authentication" className="space-y-4">
@@ -434,6 +502,145 @@ const ApiDocumentation = () => {
                 </div>
               </div>
             </TabsContent>
+            
+            <TabsContent value="status" className="space-y-4">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Case Status Management Endpoints</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Endpoints for managing and tracking case status changes throughout the dental workflow.
+                  </p>
+                </div>
+                
+                <div className="border rounded-lg">
+                  <div className="flex items-center justify-between border-b p-4">
+                    <div className="flex items-center">
+                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">PUT</span>
+                      <span className="font-mono text-sm">/api/cases/:id/status</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">Update case status</span>
+                  </div>
+                  <div className="p-4 space-y-2">
+                    <div>
+                      <h4 className="font-medium">Headers</h4>
+                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
+{`Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
+                      </pre>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Request Body</h4>
+                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
+{`{
+  "status": "in progress",
+  "notes": "Started working on the crown preparation"
+}`}
+                      </pre>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Response (200 OK)</h4>
+                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
+{`{
+  "id": "case-123",
+  "status": "in progress",
+  "previousStatus": "new",
+  "updatedAt": "2025-04-16T09:30:00Z",
+  "updatedBy": {
+    "id": "user-789",
+    "name": "Tom Wilson"
+  }
+}`}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="border rounded-lg">
+                  <div className="flex items-center justify-between border-b p-4">
+                    <div className="flex items-center">
+                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
+                      <span className="font-mono text-sm">/api/cases/:id/status-history</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">Get case status history</span>
+                  </div>
+                  <div className="p-4 space-y-2">
+                    <div>
+                      <h4 className="font-medium">Headers</h4>
+                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
+{`Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
+                      </pre>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Response (200 OK)</h4>
+                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
+{`{
+  "caseId": "case-123",
+  "currentStatus": "in progress",
+  "history": [
+    {
+      "status": "new",
+      "timestamp": "2025-04-15T10:23:00Z",
+      "changedBy": {
+        "id": "user-456",
+        "name": "Dr. Alice Johnson"
+      },
+      "notes": "Case created"
+    },
+    {
+      "status": "in progress",
+      "timestamp": "2025-04-16T09:30:00Z",
+      "changedBy": {
+        "id": "user-789",
+        "name": "Tom Wilson"
+      },
+      "notes": "Started working on the crown preparation"
+    }
+  ]
+}`}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="border rounded-lg">
+                  <div className="flex items-center justify-between border-b p-4">
+                    <div className="flex items-center">
+                      <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold mr-2">GET</span>
+                      <span className="font-mono text-sm">/api/cases/status-counts</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">Get counts of cases by status</span>
+                  </div>
+                  <div className="p-4 space-y-2">
+                    <div>
+                      <h4 className="font-medium">Headers</h4>
+                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
+{`Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
+                      </pre>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Query Parameters</h4>
+                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
+{`?period=week&technicianId=user-789  # Optional filters`}
+                      </pre>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Response (200 OK)</h4>
+                      <pre className="bg-muted p-2 rounded-md mt-1 text-sm font-mono overflow-x-auto">
+{`{
+  "counts": {
+    "new": 5,
+    "in progress": 12,
+    "pending review": 3,
+    "completed": 8,
+    "delivered": 15
+  },
+  "total": 43
+}`}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
@@ -473,7 +680,7 @@ const ApiDocumentation = () => {
 - material: STRING
 - shade: STRING
 - instructions: TEXT
-- status: ENUM ['pending', 'in-progress', 'review', 'completed', 'cancelled']
+- status: ENUM ['new', 'in progress', 'pending review', 'completed', 'delivered']
 - priority: ENUM ['low', 'medium', 'high', 'urgent']
 - dentist_id: UUID (FK to users)
 - technician_id: UUID (FK to users)
@@ -481,6 +688,20 @@ const ApiDocumentation = () => {
 - completed_date: TIMESTAMP
 - created_at: TIMESTAMP
 - updated_at: TIMESTAMP`}
+            </pre>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-medium mb-2">Case Status History</h3>
+            <pre className="bg-muted p-3 rounded-md text-sm font-mono overflow-x-auto">
+{`Table: case_status_history
+- id (PK): UUID
+- case_id: UUID (FK to cases)
+- status: ENUM ['new', 'in progress', 'pending review', 'completed', 'delivered']
+- previous_status: ENUM ['new', 'in progress', 'pending review', 'completed', 'delivered']
+- changed_by: UUID (FK to users)
+- notes: TEXT
+- timestamp: TIMESTAMP`}
             </pre>
           </div>
           
@@ -511,6 +732,19 @@ const ApiDocumentation = () => {
 - read: BOOLEAN
 - created_at: TIMESTAMP
 - updated_at: TIMESTAMP`}
+            </pre>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-medium mb-2">Message Attachments</h3>
+            <pre className="bg-muted p-3 rounded-md text-sm font-mono overflow-x-auto">
+{`Table: message_attachments
+- id (PK): UUID
+- message_id: UUID (FK to messages)
+- name: STRING
+- file_type: STRING
+- url: STRING
+- created_at: TIMESTAMP`}
             </pre>
           </div>
           

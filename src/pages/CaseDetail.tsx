@@ -24,6 +24,8 @@ import {
   ChevronLeft
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import StatusUpdateDialog from "../components/cases/StatusUpdateDialog";
+import { toast } from "@/components/ui/use-toast";
 
 const mockMessages = [
   {
@@ -82,17 +84,19 @@ const statusColors = {
   delivered: "bg-dental-gray text-dental-blue",
 };
 
+type CaseStatus = keyof typeof statusColors;
+
 const CaseDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("details");
   
   // In a real app, you would fetch this data based on the ID
-  const caseData = {
+  const [caseData, setCaseData] = useState({
     id: id || "C-2025-042",
     patientName: "John Smith",
     dentist: "Dr. Alice Johnson",
     dentistInitials: "AJ",
-    status: "in progress" as const,
+    status: "in progress" as CaseStatus,
     type: "Crown",
     tooth: "16",
     material: "Zirconia",
@@ -101,6 +105,47 @@ const CaseDetail = () => {
     createdAt: "Apr 15, 2025",
     priority: "medium" as const,
     notes: "Patient has sensitivity on the buccal side.",
+  });
+  
+  const [statusHistory, setStatusHistory] = useState([
+    {
+      status: "new" as CaseStatus,
+      timestamp: "Apr 15, 2025 at 10:23 AM",
+      notes: "Case received"
+    },
+    {
+      status: "in progress" as CaseStatus,
+      timestamp: "Apr 15, 2025 at 2:45 PM",
+      notes: "Started processing"
+    },
+    {
+      status: "in progress" as CaseStatus,
+      timestamp: "Apr 16, 2025 at 9:30 AM",
+      notes: "Working on crown preparation"
+    },
+  ]);
+
+  const handleStatusUpdate = (newStatus: CaseStatus, notes: string) => {
+    // In a real app, you would make an API call here
+    setCaseData({ ...caseData, status: newStatus });
+    
+    // Add to status history
+    const now = new Date();
+    const formattedDate = `${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at ${now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+    
+    setStatusHistory([
+      ...statusHistory,
+      {
+        status: newStatus,
+        timestamp: formattedDate,
+        notes: notes
+      }
+    ]);
+    
+    toast({
+      title: "Status updated",
+      description: `Case status changed to ${newStatus}`,
+    });
   };
   
   return (
@@ -204,6 +249,13 @@ const CaseDetail = () => {
                     <Paperclip className="h-4 w-4" />
                   </Button>
                 </div>
+                <div className="pt-2">
+                  <StatusUpdateDialog 
+                    caseId={caseData.id}
+                    currentStatus={caseData.status}
+                    onStatusUpdate={handleStatusUpdate}
+                  />
+                </div>
               </CardContent>
             </Card>
             
@@ -212,27 +264,16 @@ const CaseDetail = () => {
                 <CardTitle>Status Updates</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="relative pl-6 pb-6 before:absolute before:top-0 before:left-2 before:h-full before:w-[1px] before:bg-border">
-                  <div className="absolute left-0 top-1 h-4 w-4 rounded-full bg-primary" />
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">Case Received</p>
-                    <p className="text-xs text-muted-foreground">Apr 15, 2025 at 10:23 AM</p>
+                {statusHistory.map((update, index) => (
+                  <div key={index} className={`relative pl-6 ${index !== statusHistory.length - 1 ? 'pb-6 before:absolute before:top-0 before:left-2 before:h-full before:w-[1px] before:bg-border' : ''}`}>
+                    <div className="absolute left-0 top-1 h-4 w-4 rounded-full bg-primary" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">{update.status.charAt(0).toUpperCase() + update.status.slice(1)}</p>
+                      <p className="text-xs">{update.notes}</p>
+                      <p className="text-xs text-muted-foreground">{update.timestamp}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="relative pl-6 pb-6 before:absolute before:top-0 before:left-2 before:h-full before:w-[1px] before:bg-border">
-                  <div className="absolute left-0 top-1 h-4 w-4 rounded-full bg-primary" />
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">Started Processing</p>
-                    <p className="text-xs text-muted-foreground">Apr 15, 2025 at 2:45 PM</p>
-                  </div>
-                </div>
-                <div className="relative pl-6">
-                  <div className="absolute left-0 top-1 h-4 w-4 rounded-full bg-primary" />
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">In Progress</p>
-                    <p className="text-xs text-muted-foreground">Apr 16, 2025 at 9:30 AM</p>
-                  </div>
-                </div>
+                ))}
               </CardContent>
             </Card>
           </div>
