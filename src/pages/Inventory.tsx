@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import MainLayout from "../components/layout/MainLayout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, AlertTriangle, RefreshCw, Package, FileText } from "lucide-react";
+import { Plus, Search, AlertTriangle, RefreshCw, Package, FileText, Pencil } from "lucide-react";
 
 const inventoryData = [
   {
@@ -74,6 +75,7 @@ const inventoryData = [
 
 const Inventory = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
   
   const filteredItems = inventoryData.filter(item => 
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -88,7 +90,7 @@ const Inventory = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold tracking-tight">Inventory Management</h1>
-          <Button>
+          <Button onClick={() => navigate("/inventory/add")}>
             <Plus className="mr-2 h-5 w-5" />
             Add New Item
           </Button>
@@ -205,10 +207,20 @@ const Inventory = () => {
                           <TableCell>{item.supplier}</TableCell>
                           <TableCell>{item.lastOrdered}</TableCell>
                           <TableCell className="text-right">
-                            <Button variant="ghost" size="sm">
-                              <RefreshCw className="h-4 w-4 mr-1" />
-                              Reorder
-                            </Button>
+                            <div className="flex justify-end space-x-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => navigate(`/inventory/edit/${item.id}`)}
+                              >
+                                <Pencil className="h-4 w-4 mr-1" />
+                                Edit
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <RefreshCw className="h-4 w-4 mr-1" />
+                                Reorder
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))
@@ -251,10 +263,20 @@ const Inventory = () => {
                           <TableCell>{item.threshold} {item.unit}s</TableCell>
                           <TableCell>{item.lastOrdered}</TableCell>
                           <TableCell className="text-right">
-                            <Button variant="default" size="sm">
-                              <RefreshCw className="h-4 w-4 mr-1" />
-                              Reorder
-                            </Button>
+                            <div className="flex justify-end space-x-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => navigate(`/inventory/edit/${item.id}`)}
+                              >
+                                <Pencil className="h-4 w-4 mr-1" />
+                                Edit
+                              </Button>
+                              <Button variant="default" size="sm">
+                                <RefreshCw className="h-4 w-4 mr-1" />
+                                Reorder
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))
