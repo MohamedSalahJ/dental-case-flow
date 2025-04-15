@@ -11,7 +11,8 @@ import {
   Package, 
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  HelpCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -22,6 +23,7 @@ const navItems = [
   { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Reports", href: "/reports", icon: BarChart3 },
   { name: "Inventory", href: "/inventory", icon: Package },
+  { name: "Help", href: "/help", icon: HelpCircle },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
