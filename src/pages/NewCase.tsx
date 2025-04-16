@@ -3,9 +3,8 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import MainLayout from "../components/layout/MainLayout";
-import { ChevronLeft, Save } from "lucide-react";
+import { ChevronLeft, Save, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
@@ -116,9 +115,6 @@ const NewCase = () => {
                   id="prescription-form" 
                   activeTab={activeTab} 
                   setActiveTab={setActiveTab}
-                  onSubmit={handleSubmit}
-                  dentists={dentists || []}
-                  patients={patients || []}
                 />
               </TabsContent>
               
@@ -128,9 +124,6 @@ const NewCase = () => {
                     id="prescription-form" 
                     activeTab={activeTab} 
                     setActiveTab={setActiveTab}
-                    onSubmit={handleSubmit}
-                    dentists={dentists || []}
-                    patients={patients || []}
                   />
                 ) : (
                   <div className="text-center py-12 text-muted-foreground">
