@@ -11,586 +11,463 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, ChevronRight, ImageIcon, Info, Receipt } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, HelpCircle, Search, FileText, Calendar, UserCircle, DollarSign, Database, Settings, MessageSquare } from "lucide-react";
+
+function GettingStartedSection() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Getting Started</h2>
+      
+      <p>Welcome to DentalFlow! This guide will help you get started with the application and understand its main features.</p>
+      
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="account-setup">
+          <AccordionTrigger>Account Setup</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To set up your account:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Click on the &quot;Register&quot; button on the homepage.</li>
+              <li>Fill in the required information, such as your name, email, and password.</li>
+              <li>Verify your email address by clicking the link sent to your inbox.</li>
+              <li>Log in with your new credentials.</li>
+            </ol>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="dashboard-overview">
+          <AccordionTrigger>Dashboard Overview</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>The dashboard provides a quick overview of your practice. Here&apos;s what you&apos;ll find:</p>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>Key metrics such as total revenue, outstanding invoices, and upcoming appointments.</li>
+              <li>Quick access to important sections like Cases, Invoices, and Inventory.</li>
+              <li>A calendar view of your upcoming appointments and tasks.</li>
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="navigation">
+          <AccordionTrigger>Navigation</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>Use the main sidebar to navigate to different sections of the application:</p>
+            <ul className="list-disc pl-5 space-y-2">
+              <li><strong>Cases:</strong> Manage patient cases and track their progress.</li>
+              <li><strong>Invoices:</strong> Create and manage invoices for your services.</li>
+              <li><strong>Inventory:</strong> Keep track of your supplies and equipment.</li>
+              <li><strong>Calendar:</strong> View and manage your appointments and tasks.</li>
+              <li><strong>Reports:</strong> Generate reports on your practice&apos;s performance.</li>
+              <li><strong>Settings:</strong> Configure your account and application settings.</li>
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
+}
+
+function CaseManagementSection() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Case Management</h2>
+      
+      <p>The case management system allows you to track and manage patient cases from start to finish.</p>
+      
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="creating-case">
+          <AccordionTrigger>Creating a New Case</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To create a new case:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Navigate to the Cases section from the main sidebar.</li>
+              <li>Click the &quot;New Case&quot; button in the top right.</li>
+              <li>Fill in the required information, such as the patient, dentist, and case details.</li>
+              <li>Set the case status and priority.</li>
+              <li>Click &quot;Save Case&quot; to create the case.</li>
+            </ol>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="viewing-case">
+          <AccordionTrigger>Viewing Case Details</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To view the details of a case:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Navigate to the Cases section from the main sidebar.</li>
+              <li>Click on the case you want to view.</li>
+              <li>The case details will be displayed, including the patient, dentist, case details, and status.</li>
+            </ol>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="updating-case">
+          <AccordionTrigger>Updating a Case</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To update a case:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Navigate to the Cases section from the main sidebar.</li>
+              <li>Click on the case you want to update.</li>
+              <li>Click the &quot;Edit Case&quot; button.</li>
+              <li>Make the necessary changes.</li>
+              <li>Click &quot;Save Case&quot; to update the case.</li>
+            </ol>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="managing-case-status">
+          <AccordionTrigger>Managing Case Status</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>You can update the status of a case to reflect its progress:</p>
+            <ul className="list-disc pl-5 space-y-2">
+              <li><strong>Open:</strong> The case is newly created and awaiting action.</li>
+              <li><strong>In Progress:</strong> The case is currently being worked on.</li>
+              <li><strong>On Hold:</strong> The case is temporarily paused.</li>
+              <li><strong>Completed:</strong> The case has been successfully completed.</li>
+              <li><strong>Cancelled:</strong> The case has been cancelled.</li>
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
+}
+
+function InvoiceSection() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Invoices & Billing</h2>
+      
+      <p>The invoicing system allows you to create, manage, and track all financial transactions in your dental lab.</p>
+      
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="create-invoice">
+          <AccordionTrigger>Creating a New Invoice</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To create a new invoice:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Navigate to the Invoices section from the main sidebar</li>
+              <li>Click the &quot;Create Invoice&quot; button in the top right</li>
+              <li>Fill in the required information:
+                <ul className="list-disc pl-5 mt-2 space-y-1">
+                  <li>Select the dentist from the dropdown</li>
+                  <li>Select the patient from the dropdown</li>
+                  <li>Optionally link to a specific case</li>
+                  <li>Set the invoice date and due date</li>
+                  <li>Add line items with descriptions, quantities, and unit prices</li>
+                </ul>
+              </li>
+              <li>Add any additional notes if needed</li>
+              <li>Click &quot;Save Invoice&quot; to create the invoice</li>
+            </ol>
+            
+            <div className="bg-muted p-4 rounded-lg flex items-start gap-3 mt-2">
+              <HelpCircle className="h-5 w-5 text-blue-500 mt-0.5" />
+              <div>
+                <p className="font-semibold">Pro Tip</p>
+                <p className="text-sm text-muted-foreground">
+                  When creating an invoice, you can link it to a specific case to keep your financial records organized and easily track payments related to each case.
+                </p>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="view-invoice">
+          <AccordionTrigger>Viewing Invoice Details</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To view the details of an invoice:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Navigate to the Invoices section from the main sidebar.</li>
+              <li>Click on the invoice you want to view.</li>
+              <li>The invoice details will be displayed, including the invoice number, date, patient, dentist, and line items.</li>
+            </ol>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="managing-invoice-status">
+          <AccordionTrigger>Managing Invoice Status</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>You can update the status of an invoice to reflect its payment status:</p>
+            <ul className="list-disc pl-5 space-y-2">
+              <li><strong>Unpaid:</strong> The invoice is awaiting payment.</li>
+              <li><strong>Paid:</strong> The invoice has been paid.</li>
+              <li><strong>Overdue:</strong> The invoice is past its due date.</li>
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
+}
+
+function InventorySection() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Inventory Management</h2>
+      
+      <p>The inventory management system allows you to keep track of your supplies and equipment.</p>
+      
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="adding-item">
+          <AccordionTrigger>Adding a New Item</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To add a new item to your inventory:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Navigate to the Inventory section from the main sidebar.</li>
+              <li>Click the &quot;Add Item&quot; button in the top right.</li>
+              <li>Fill in the required information, such as the item name, description, and quantity.</li>
+              <li>Click &quot;Save Item&quot; to add the item to your inventory.</li>
+            </ol>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="viewing-item">
+          <AccordionTrigger>Viewing Item Details</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To view the details of an item:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Navigate to the Inventory section from the main sidebar.</li>
+              <li>Click on the item you want to view.</li>
+              <li>The item details will be displayed, including the item name, description, quantity, and supplier.</li>
+            </ol>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="updating-item">
+          <AccordionTrigger>Updating an Item</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To update an item:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Navigate to the Inventory section from the main sidebar.</li>
+              <li>Click on the item you want to update.</li>
+              <li>Click the &quot;Edit Item&quot; button.</li>
+              <li>Make the necessary changes.</li>
+              <li>Click &quot;Save Item&quot; to update the item.</li>
+            </ol>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="managing-categories">
+          <AccordionTrigger>Managing Inventory Categories</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>You can categorize your inventory items to keep them organized:</p>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>Create categories such as &quot;Crowns&quot;, &quot;Impression Materials&quot;, and &quot;Temporary Materials&quot;.</li>
+              <li>Assign items to the appropriate categories.</li>
+              <li>Filter and sort items by category to quickly find what you need.</li>
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
+}
+
+function CalendarSection() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Calendar</h2>
+      
+      <p>The calendar feature allows you to manage your appointments and tasks.</p>
+      
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="adding-appointment">
+          <AccordionTrigger>Adding a New Appointment</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To add a new appointment:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Navigate to the Calendar section from the main sidebar.</li>
+              <li>Click on the date and time you want to add the appointment.</li>
+              <li>Fill in the required information, such as the patient, dentist, and appointment details.</li>
+              <li>Click &quot;Save Appointment&quot; to add the appointment to your calendar.</li>
+            </ol>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="viewing-appointment">
+          <AccordionTrigger>Viewing Appointment Details</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To view the details of an appointment:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Navigate to the Calendar section from the main sidebar.</li>
+              <li>Click on the appointment you want to view.</li>
+              <li>The appointment details will be displayed, including the patient, dentist, and appointment details.</li>
+            </ol>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="updating-appointment">
+          <AccordionTrigger>Updating an Appointment</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To update an appointment:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Navigate to the Calendar section from the main sidebar.</li>
+              <li>Click on the appointment you want to update.</li>
+              <li>Click the &quot;Edit Appointment&quot; button.</li>
+              <li>Make the necessary changes.</li>
+              <li>Click &quot;Save Appointment&quot; to update the appointment.</li>
+            </ol>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
+}
+
+function ReportsSection() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Reports</h2>
+      
+      <p>The reports section allows you to generate reports on your practice&apos;s performance.</p>
+      
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="revenue-report">
+          <AccordionTrigger>Generating a Revenue Report</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To generate a revenue report:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Navigate to the Reports section from the main sidebar.</li>
+              <li>Select the &quot;Revenue Report&quot; option.</li>
+              <li>Specify the date range for the report.</li>
+              <li>Click &quot;Generate Report&quot; to generate the report.</li>
+            </ol>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="inventory-report">
+          <AccordionTrigger>Generating an Inventory Report</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>To generate an inventory report:</p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Navigate to the Reports section from the main sidebar.</li>
+              <li>Select the &quot;Inventory Report&quot; option.</li>
+              <li>Specify the report parameters, such as the item categories to include.</li>
+              <li>Click &quot;Generate Report&quot; to generate the report.</li>
+            </ol>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
+}
+
+function SettingsSection() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Settings</h2>
+      
+      <p>The settings section allows you to configure your account and application settings.</p>
+      
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="account-settings">
+          <AccordionTrigger>Account Settings</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>In the account settings, you can:</p>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>Change your password.</li>
+              <li>Update your profile information.</li>
+              <li>Manage your notification preferences.</li>
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="application-settings">
+          <AccordionTrigger>Application Settings</AccordionTrigger>
+          <AccordionContent className="space-y-4">
+            <p>In the application settings, you can:</p>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>Configure the default currency.</li>
+              <li>Set up email integration.</li>
+              <li>Customize the application&apos;s appearance.</li>
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
+}
 
 const UserGuide = () => {
-  const [activeTab, setActiveTab] = useState("getting-started");
+  const [tabValue, setTabValue] = useState("getting-started");
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">User Guide</h1>
-        <p className="text-muted-foreground">
-          Learn how to use DentalFlow to manage your dental lab workflow efficiently.
-        </p>
-      </div>
+      <Card>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="col-span-1 md:col-span-2">
+              <h1 className="text-3xl font-bold tracking-tight">User Guide</h1>
+              <p className="text-muted-foreground">
+                Learn how to use DentalFlow effectively with this comprehensive user guide.
+              </p>
+            </div>
+            <div className="col-span-1 flex items-center justify-end">
+              <div className="flex items-center space-x-2">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search the guide..."
+                  className="border rounded-md px-3 py-2 w-full"
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-4 w-full">
-          <TabsTrigger value="getting-started">Getting Started</TabsTrigger>
-          <TabsTrigger value="cases">Cases Management</TabsTrigger>
-          <TabsTrigger value="invoices">Invoices</TabsTrigger>
-          <TabsTrigger value="workflows">Workflows</TabsTrigger>
+      <Tabs value={tabValue} onValueChange={setTabValue} className="w-full">
+        <TabsList className="w-full mb-6">
+          <TabsTrigger value="getting-started" className="flex-1">
+            <HelpCircle className="mr-2 h-4 w-4" />
+            Getting Started
+          </TabsTrigger>
+          <TabsTrigger value="case-management" className="flex-1">
+            <FileText className="mr-2 h-4 w-4" />
+            Case Management
+          </TabsTrigger>
+          <TabsTrigger value="invoices" className="flex-1">
+            <DollarSign className="mr-2 h-4 w-4" />
+            Invoices
+          </TabsTrigger>
+          <TabsTrigger value="inventory" className="flex-1">
+            <Database className="mr-2 h-4 w-4" />
+            Inventory
+          </TabsTrigger>
+          <TabsTrigger value="calendar" className="flex-1">
+            <Calendar className="mr-2 h-4 w-4" />
+            Calendar
+          </TabsTrigger>
+          <TabsTrigger value="reports" className="flex-1">
+            <FileText className="mr-2 h-4 w-4" />
+            Reports
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex-1">
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
+          </TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="getting-started" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Introduction to DentalFlow</CardTitle>
-              <CardDescription>
-                Learn the basics of the DentalFlow platform
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p>
-                DentalFlow is a comprehensive dental lab management system designed to streamline the workflow between dentists and lab technicians. It helps manage cases, track inventory, handle invoicing, and facilitate communication between all parties involved in dental restorations.
-              </p>
-              
-              <h3 className="text-lg font-semibold mt-4">Key Features</h3>
-              <ul className="list-disc pl-6 space-y-2">
-                <li><span className="font-semibold">Case Management:</span> Track all your dental cases from submission to delivery</li>
-                <li><span className="font-semibold">Invoicing:</span> Create and manage invoices for completed work</li>
-                <li><span className="font-semibold">Inventory Control:</span> Track materials and supplies</li>
-                <li><span className="font-semibold">Communication:</span> Direct messaging between dentists and technicians</li>
-                <li><span className="font-semibold">Reporting:</span> Generate reports on lab performance and financials</li>
-              </ul>
-              
-              <h3 className="text-lg font-semibold mt-4">System Requirements</h3>
-              <p>
-                DentalFlow is a web-based application that can be accessed from any modern web browser (Chrome, Firefox, Safari, Edge). No installation is required.
-              </p>
-              
-              <h3 className="text-lg font-semibold mt-4">User Roles</h3>
-              <p>
-                DentalFlow supports different user roles, each with specific permissions:
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li><span className="font-semibold">Administrator:</span> Full access to all features</li>
-                <li><span className="font-semibold">Dentist:</span> Submit cases, view case status, communicate with lab</li>
-                <li><span className="font-semibold">Lab Technician:</span> Manage cases, update status, track inventory</li>
-                <li><span className="font-semibold">Office Manager:</span> Handle invoicing, reports, and administrative tasks</li>
-              </ul>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Getting Started</CardTitle>
-              <CardDescription>
-                Steps to set up your account and start using DentalFlow
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <h3 className="text-lg font-semibold">Creating Your Account</h3>
-              <ol className="list-decimal pl-6 space-y-2">
-                <li>Visit the DentalFlow website and click on "Sign Up"</li>
-                <li>Fill out the registration form with your information</li>
-                <li>Select your user role (Dentist, Lab Technician, etc.)</li>
-                <li>Verify your email address by clicking the link sent to your inbox</li>
-                <li>Set up your profile with additional information</li>
-              </ol>
-              
-              <h3 className="text-lg font-semibold mt-4">Navigating the Dashboard</h3>
-              <p>
-                After logging in, you'll be taken to your dashboard, which provides an overview of your current cases, deadlines, and recent activity. The left sidebar contains navigation to all main features of the application.
-              </p>
-              
-              <h3 className="text-lg font-semibold mt-4">Setting Up Your Profile</h3>
-              <p>
-                To complete your profile setup:
-              </p>
-              <ol className="list-decimal pl-6 space-y-2">
-                <li>Click on your profile picture in the top right corner</li>
-                <li>Select "Settings" from the dropdown menu</li>
-                <li>Fill out your professional information, contact details, and preferences</li>
-                <li>Upload a profile picture if desired</li>
-                <li>Save your changes</li>
-              </ol>
-            </CardContent>
-          </Card>
+        <TabsContent value="getting-started">
+          <GettingStartedSection />
         </TabsContent>
-        
-        <TabsContent value="cases" className="space-y-4">
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="creating-case">
-              <AccordionTrigger>
-                <div className="flex items-center">
-                  <CheckCircle className="mr-2 h-5 w-5 text-primary" />
-                  <span>Creating a New Case</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-4">
-                  <p>
-                    Creating a new case is the first step in the dental lab workflow. Follow these steps to create a new case:
-                  </p>
-                  
-                  <ol className="list-decimal pl-6 space-y-2">
-                    <li>Navigate to the Cases section from the sidebar</li>
-                    <li>Click on the "Create New Case" button</li>
-                    <li>Fill out the case details:
-                      <ul className="list-disc pl-6 mt-2">
-                        <li>Patient information</li>
-                        <li>Case type (Crown, Bridge, Veneer, etc.)</li>
-                        <li>Restoration details (material, shade, etc.)</li>
-                        <li>Due date</li>
-                        <li>Special instructions</li>
-                      </ul>
-                    </li>
-                    <li>Upload any supporting files (photos, scans, X-rays)</li>
-                    <li>Review the information and submit the case</li>
-                  </ol>
-                  
-                  <div className="flex items-start p-4 bg-muted rounded-md">
-                    <Info className="h-5 w-5 text-primary mr-2 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Pro Tip</p>
-                      <p className="text-sm text-muted-foreground">
-                        When uploading shade photos, ensure they are taken in natural light with a shade guide visible in the frame for accurate color matching.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="managing-case">
-              <AccordionTrigger>
-                <div className="flex items-center">
-                  <CheckCircle className="mr-2 h-5 w-5 text-primary" />
-                  <span>Managing Case Status</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-4">
-                  <p>
-                    Keeping track of case status is essential for efficient workflow management. Here's how to update and manage case status:
-                  </p>
-                  
-                  <h4 className="font-semibold">Understanding Case Statuses</h4>
-                  <ul className="list-disc pl-6 space-y-2">
-                    <li><span className="font-semibold">New:</span> Case has been submitted but not yet started</li>
-                    <li><span className="font-semibold">In Progress:</span> Work has begun on the case</li>
-                    <li><span className="font-semibold">Pending Review:</span> Case is ready for quality check or dentist approval</li>
-                    <li><span className="font-semibold">Completed:</span> Work is finished and ready for pickup/delivery</li>
-                    <li><span className="font-semibold">Delivered:</span> Case has been delivered to the dentist</li>
-                  </ul>
-                  
-                  <h4 className="font-semibold mt-4">Updating Case Status</h4>
-                  <ol className="list-decimal pl-6 space-y-2">
-                    <li>Navigate to the specific case details page</li>
-                    <li>Click on the "Update Status" button</li>
-                    <li>Select the new status from the dropdown menu</li>
-                    <li>Add notes about the status change (required)</li>
-                    <li>Save the changes</li>
-                  </ol>
-                  
-                  <h4 className="font-semibold mt-4">Status Change Notifications</h4>
-                  <p>
-                    When a case status is updated, notifications are automatically sent to all involved parties:
-                  </p>
-                  <ul className="list-disc pl-6 space-y-2">
-                    <li>Dentists receive notifications when their cases progress to a new stage</li>
-                    <li>Lab managers are notified of all status changes</li>
-                    <li>Technicians are notified of cases assigned to them</li>
-                  </ul>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="case-communication">
-              <AccordionTrigger>
-                <div className="flex items-center">
-                  <CheckCircle className="mr-2 h-5 w-5 text-primary" />
-                  <span>Communication and Comments</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-4">
-                  <p>
-                    Effective communication is crucial for successful case completion. DentalFlow provides several ways to communicate within the context of a case:
-                  </p>
-                  
-                  <h4 className="font-semibold">Adding Comments to a Case</h4>
-                  <ol className="list-decimal pl-6 space-y-2">
-                    <li>Navigate to the case details page</li>
-                    <li>Scroll down to the "Comments" section</li>
-                    <li>Type your comment in the text field</li>
-                    <li>Attach files if needed</li>
-                    <li>Click "Post Comment"</li>
-                  </ol>
-                  
-                  <h4 className="font-semibold mt-4">Direct Messaging</h4>
-                  <p>
-                    For private communication between dentists and technicians:
-                  </p>
-                  <ol className="list-decimal pl-6 space-y-2">
-                    <li>Navigate to the Messages section from the sidebar</li>
-                    <li>Select an existing conversation or start a new one</li>
-                    <li>Type your message and send</li>
-                    <li>You can reference specific cases by using the # symbol followed by the case ID</li>
-                  </ol>
-                  
-                  <div className="flex items-start p-4 bg-muted rounded-md">
-                    <Info className="h-5 w-5 text-primary mr-2 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Pro Tip</p>
-                      <p className="text-sm text-muted-foreground">
-                        When discussing specific aspects of a case, use the &quot;Tag Area&quot; feature on images to highlight exactly what you&apos;re referring to.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+        <TabsContent value="case-management">
+          <CaseManagementSection />
         </TabsContent>
-        
-        <TabsContent value="invoices" className="space-y-4">
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="creating-invoice">
-              <AccordionTrigger>
-                <div className="flex items-center">
-                  <Receipt className="mr-2 h-5 w-5 text-primary" />
-                  <span>Creating Invoices</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-4">
-                  <p>
-                    DentalFlow makes it easy to create professional invoices for completed dental work. Follow these steps to create a new invoice:
-                  </p>
-                  
-                  <ol className="list-decimal pl-6 space-y-2">
-                    <li>Navigate to the Invoices section from the sidebar</li>
-                    <li>Click on the "Create Invoice" button</li>
-                    <li>Fill out the invoice details:
-                      <ul className="list-disc pl-6 mt-2">
-                        <li>Select the dentist/patient</li>
-                        <li>Optionally link to a specific case</li>
-                        <li>Set the invoice date and due date</li>
-                        <li>Add line items for products and services</li>
-                        <li>Enter quantity and unit price for each item</li>
-                        <li>Add any notes or payment instructions</li>
-                      </ul>
-                    </li>
-                    <li>Review the invoice and click "Save Invoice"</li>
-                  </ol>
-                  
-                  <h4 className="font-semibold mt-4">Auto-Populating from Cases</h4>
-                  <p>
-                    If you link an invoice to a case, you can auto-populate the invoice with the case details:
-                  </p>
-                  <ol className="list-decimal pl-6 space-y-2">
-                    <li>Select the related case from the dropdown</li>
-                    <li>Click "Import Case Details"</li>
-                    <li>The patient, dentist, and work details will be automatically filled in</li>
-                    <li>You can still edit any information as needed</li>
-                  </ol>
-                  
-                  <div className="flex items-start p-4 bg-muted rounded-md">
-                    <Info className="h-5 w-5 text-primary mr-2 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Pro Tip</p>
-                      <p className="text-sm text-muted-foreground">
-                        Set up invoice templates for common procedures to save time when creating new invoices.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="managing-payments">
-              <AccordionTrigger>
-                <div className="flex items-center">
-                  <Receipt className="mr-2 h-5 w-5 text-primary" />
-                  <span>Managing Payments</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-4">
-                  <p>
-                    Keeping track of payments is essential for maintaining healthy cash flow. Here's how to record and manage payments in DentalFlow:
-                  </p>
-                  
-                  <h4 className="font-semibold">Recording a Payment</h4>
-                  <ol className="list-decimal pl-6 space-y-2">
-                    <li>Navigate to the specific invoice</li>
-                    <li>Click on the "Record Payment" button</li>
-                    <li>Enter the payment details:
-                      <ul className="list-disc pl-6 mt-2">
-                        <li>Payment amount</li>
-                        <li>Payment method (credit card, cash, bank transfer, etc.)</li>
-                        <li>Payment date</li>
-                        <li>Reference number (if applicable)</li>
-                      </ul>
-                    </li>
-                    <li>Click "Record Payment"</li>
-                  </ol>
-                  
-                  <h4 className="font-semibold mt-4">Partial Payments</h4>
-                  <p>
-                    DentalFlow supports partial payments for invoices:
-                  </p>
-                  <ul className="list-disc pl-6 space-y-2">
-                    <li>If the payment amount is less than the invoice total, the invoice status remains "Unpaid"</li>
-                    <li>The remaining balance is calculated automatically</li>
-                    <li>You can record multiple payments against the same invoice</li>
-                    <li>Once the total paid amount equals the invoice amount, the status changes to "Paid"</li>
-                  </ul>
-                  
-                  <h4 className="font-semibold mt-4">Payment Reports</h4>
-                  <p>
-                    Generate reports on payments and outstanding invoices:
-                  </p>
-                  <ol className="list-decimal pl-6 space-y-2">
-                    <li>Navigate to the Reports section from the sidebar</li>
-                    <li>Select "Financial Reports" from the report types</li>
-                    <li>Choose the desired report (e.g., "Payment Summary," "Aging Report")</li>
-                    <li>Set the date range and other filters</li>
-                    <li>Generate the report</li>
-                  </ol>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="sending-invoices">
-              <AccordionTrigger>
-                <div className="flex items-center">
-                  <Receipt className="mr-2 h-5 w-5 text-primary" />
-                  <span>Sending Invoices</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-4">
-                  <p>
-                    DentalFlow offers multiple ways to share invoices with your clients:
-                  </p>
-                  
-                  <h4 className="font-semibold">Email Delivery</h4>
-                  <ol className="list-decimal pl-6 space-y-2">
-                    <li>Open the invoice you want to send</li>
-                    <li>Click on the "Send Invoice" button</li>
-                    <li>Select "Email" as the delivery method</li>
-                    <li>The recipient's email will be pre-filled if available</li>
-                    <li>Customize the email message if needed</li>
-                    <li>Click "Send"</li>
-                  </ol>
-                  
-                  <h4 className="font-semibold mt-4">PDF Download</h4>
-                  <p>
-                    To download an invoice as a PDF for printing or manual sending:
-                  </p>
-                  <ol className="list-decimal pl-6 space-y-2">
-                    <li>Open the invoice</li>
-                    <li>Click on the "Download" button</li>
-                    <li>The invoice will be generated as a PDF and downloaded to your device</li>
-                    <li>You can then print or attach it to an email manually</li>
-                  </ol>
-                  
-                  <h4 className="font-semibold mt-4">Client Portal Sharing</h4>
-                  <p>
-                    If your clients have access to the DentalFlow client portal:
-                  </p>
-                  <ol className="list-decimal pl-6 space-y-2">
-                    <li>Open the invoice</li>
-                    <li>Click on the "Share to Portal" button</li>
-                    <li>The client will receive a notification that a new invoice is available</li>
-                    <li>They can log in to view and pay the invoice online</li>
-                  </ol>
-                  
-                  <div className="flex items-start p-4 bg-muted rounded-md">
-                    <Info className="h-5 w-5 text-primary mr-2 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Auto-Reminders</p>
-                      <p className="text-sm text-muted-foreground">
-                        DentalFlow can automatically send payment reminders for overdue invoices. Configure this feature in Settings > Invoice Settings.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+        <TabsContent value="invoices">
+          <InvoiceSection />
         </TabsContent>
-        
-        <TabsContent value="workflows" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Workflow Overview</CardTitle>
-              <CardDescription>
-                Understanding the end-to-end workflow in DentalFlow
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p>
-                DentalFlow streamlines the entire workflow between dental offices and labs. Here's an overview of the typical workflow:
-              </p>
-              
-              <div className="relative mt-6">
-                <div className="absolute left-4 top-0 h-full w-0.5 bg-muted-foreground/20"></div>
-                
-                <div className="relative pl-10 pb-8">
-                  <div className="absolute left-2 top-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                    <span className="text-xs font-bold text-primary-foreground">1</span>
-                  </div>
-                  <h3 className="text-lg font-semibold">Case Submission</h3>
-                  <p className="text-muted-foreground mt-1">
-                    Dentist creates a new case with all required details and uploads supporting files.
-                  </p>
-                </div>
-                
-                <div className="relative pl-10 pb-8">
-                  <div className="absolute left-2 top-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                    <span className="text-xs font-bold text-primary-foreground">2</span>
-                  </div>
-                  <h3 className="text-lg font-semibold">Case Review</h3>
-                  <p className="text-muted-foreground mt-1">
-                    Lab receives the case and reviews the details. If any information is missing, they can request it through the messaging system.
-                  </p>
-                </div>
-                
-                <div className="relative pl-10 pb-8">
-                  <div className="absolute left-2 top-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                    <span className="text-xs font-bold text-primary-foreground">3</span>
-                  </div>
-                  <h3 className="text-lg font-semibold">Production</h3>
-                  <p className="text-muted-foreground mt-1">
-                    Lab updates the case status to "In Progress" and begins production. Updates are added as work progresses.
-                  </p>
-                </div>
-                
-                <div className="relative pl-10 pb-8">
-                  <div className="absolute left-2 top-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                    <span className="text-xs font-bold text-primary-foreground">4</span>
-                  </div>
-                  <h3 className="text-lg font-semibold">Quality Check</h3>
-                  <p className="text-muted-foreground mt-1">
-                    When the work is complete, it undergoes quality control. Status is updated to "Pending Review" if dentist approval is needed.
-                  </p>
-                </div>
-                
-                <div className="relative pl-10 pb-8">
-                  <div className="absolute left-2 top-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                    <span className="text-xs font-bold text-primary-foreground">5</span>
-                  </div>
-                  <h3 className="text-lg font-semibold">Completion and Delivery</h3>
-                  <p className="text-muted-foreground mt-1">
-                    Once approved, the status is updated to "Completed" and the work is prepared for delivery or pickup.
-                  </p>
-                </div>
-                
-                <div className="relative pl-10">
-                  <div className="absolute left-2 top-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                    <span className="text-xs font-bold text-primary-foreground">6</span>
-                  </div>
-                  <h3 className="text-lg font-semibold">Invoicing and Payment</h3>
-                  <p className="text-muted-foreground mt-1">
-                    An invoice is created for the completed work. Once delivered, the case status is updated to "Delivered" and payment is processed.
-                  </p>
-                </div>
-              </div>
-              
-              <h3 className="text-lg font-semibold mt-6">Benefits of the Streamlined Workflow</h3>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Reduced administrative work</li>
-                <li>Improved communication</li>
-                <li>Real-time status updates</li>
-                <li>Faster turnaround times</li>
-                <li>Better inventory management</li>
-                <li>Comprehensive tracking of all cases</li>
-                <li>Simplified invoicing and payment processing</li>
-              </ul>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Common Workflow Scenarios</CardTitle>
-              <CardDescription>
-                Detailed examples of typical workflows in DentalFlow
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold flex items-center">
-                  <span className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground mr-2">1</span>
-                  Crown Restoration Workflow
-                </h3>
-                <div className="ml-10 mt-2 space-y-2">
-                  <p className="text-muted-foreground">
-                    A typical workflow for a crown restoration:
-                  </p>
-                  <ol className="list-decimal pl-6 space-y-1">
-                    <li>Dentist submits a new crown case with prep scans</li>
-                    <li>Lab reviews and confirms receipt</li>
-                    <li>Technician designs the crown and sends a digital mockup for approval</li>
-                    <li>Dentist approves the design</li>
-                    <li>Technician fabricates the crown</li>
-                    <li>Quality control checks the final product</li>
-                    <li>Crown is prepared for delivery</li>
-                    <li>Invoice is generated</li>
-                    <li>Crown is delivered to the dental office</li>
-                    <li>Payment is processed</li>
-                  </ol>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold flex items-center">
-                  <span className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground mr-2">2</span>
-                  Denture Repair Workflow
-                </h3>
-                <div className="ml-10 mt-2 space-y-2">
-                  <p className="text-muted-foreground">
-                    Workflow for a denture repair:
-                  </p>
-                  <ol className="list-decimal pl-6 space-y-1">
-                    <li>Dentist creates a new repair case</li>
-                    <li>Physical denture is sent to the lab</li>
-                    <li>Lab confirms receipt and updates status</li>
-                    <li>Technician assesses the repair needed</li>
-                    <li>Repair is completed</li>
-                    <li>Quality check is performed</li>
-                    <li>Repaired denture is prepared for return</li>
-                    <li>Invoice is generated</li>
-                    <li>Denture is returned to the dental office</li>
-                    <li>Payment is processed</li>
-                  </ol>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold flex items-center">
-                  <span className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground mr-2">3</span>
-                  Multiple Unit Bridge Workflow
-                </h3>
-                <div className="ml-10 mt-2 space-y-2">
-                  <p className="text-muted-foreground">
-                    Workflow for a complex bridge restoration:
-                  </p>
-                  <ol className="list-decimal pl-6 space-y-1">
-                    <li>Dentist submits case with detailed specifications</li>
-                    <li>Lab reviews and requests additional information if needed</li>
-                    <li>Design phase begins with regular updates</li>
-                    <li>Digital design is sent for dentist approval</li>
-                    <li>Dentist requests minor adjustments</li>
-                    <li>Design is updated and resubmitted</li>
-                    <li>Dentist approves final design</li>
-                    <li>Fabrication begins</li>
-                    <li>Quality control checks</li>
-                    <li>Bridge is prepared for delivery</li>
-                    <li>Invoice is generated</li>
-                    <li>Bridge is delivered to the dental office</li>
-                    <li>Dentist confirms fit and final approval</li>
-                    <li>Payment is processed</li>
-                  </ol>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="inventory">
+          <InventorySection />
+        </TabsContent>
+        <TabsContent value="calendar">
+          <CalendarSection />
+        </TabsContent>
+        <TabsContent value="reports">
+          <ReportsSection />
+        </TabsContent>
+        <TabsContent value="settings">
+          <SettingsSection />
         </TabsContent>
       </Tabs>
     </div>
