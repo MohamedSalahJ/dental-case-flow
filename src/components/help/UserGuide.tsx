@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Tabs,
@@ -238,7 +237,7 @@ const UserGuide = () => {
                     <div>
                       <p className="font-semibold">Pro Tip</p>
                       <p className="text-sm text-muted-foreground">
-                        When discussing specific aspects of a case, use the "Tag Area" feature on images to highlight exactly what you're referring to.
+                        When discussing specific aspects of a case, use the &quot;Tag Area&quot; feature on images to highlight exactly what you&apos;re referring to.
                       </p>
                     </div>
                   </div>
