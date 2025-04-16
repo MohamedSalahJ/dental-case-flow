@@ -1,15 +1,23 @@
 
 import api from './api';
 
+export interface InvoiceItem {
+  id?: number;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  amount?: number;
+}
+
 export interface Invoice {
-  id: string;
-  invoiceNumber: string;
+  id?: string | number;
+  invoiceNumber?: string;
   status: 'paid' | 'unpaid' | 'overdue';
   patientId: number;
   patientName?: string;
   dentistId: number;
   dentistName?: string;
-  caseId?: number;
+  caseId?: number | null;
   amount: number;
   tax: number;
   total: number;
@@ -17,18 +25,9 @@ export interface Invoice {
   issueDate: string;
   dueDate: string;
   paidDate?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   items: InvoiceItem[];
-}
-
-export interface InvoiceItem {
-  id: number;
-  invoiceId: number;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  amount: number;
 }
 
 export interface InvoiceCreateRequest {
@@ -40,38 +39,68 @@ export interface InvoiceCreateRequest {
   notes?: string;
   issueDate: string;
   dueDate: string;
-  items: Omit<InvoiceItem, 'id' | 'invoiceId' | 'amount'>[];
+  items: Omit<InvoiceItem, 'id' | 'amount'>[];
 }
+
+// API paths
+const INVOICES_PATH = '/invoices';
 
 const invoiceService = {
   getAll: async (filter?: string): Promise<Invoice[]> => {
-    const url = filter ? `/invoices?status=${filter}` : '/invoices';
-    const response = await api.get<Invoice[]>(url);
-    return response.data;
+    try {
+      const url = filter && filter !== 'all' 
+        ? `${INVOICES_PATH}?status=${filter}` 
+        : INVOICES_PATH;
+      return await api.get<Invoice[]>(url);
+    } catch (error) {
+      console.error("Error fetching invoices:", error);
+      throw error;
+    }
   },
 
-  getById: async (id: string): Promise<Invoice> => {
-    const response = await api.get<Invoice>(`/invoices/${id}`);
-    return response.data;
+  getById: async (id: string | number): Promise<Invoice> => {
+    try {
+      return await api.get<Invoice>(`${INVOICES_PATH}/${id}`);
+    } catch (error) {
+      console.error(`Error fetching invoice ${id}:`, error);
+      throw error;
+    }
   },
 
   create: async (invoice: InvoiceCreateRequest): Promise<Invoice> => {
-    const response = await api.post<Invoice>('/invoices', invoice);
-    return response.data;
+    try {
+      return await api.post<Invoice>(INVOICES_PATH, invoice);
+    } catch (error) {
+      console.error("Error creating invoice:", error);
+      throw error;
+    }
   },
 
-  update: async (id: string, invoice: Partial<Invoice>): Promise<Invoice> => {
-    const response = await api.put<Invoice>(`/invoices/${id}`, invoice);
-    return response.data;
+  update: async (id: string | number, invoice: Partial<Invoice>): Promise<Invoice> => {
+    try {
+      return await api.put<Invoice>(`${INVOICES_PATH}/${id}`, invoice);
+    } catch (error) {
+      console.error(`Error updating invoice ${id}:`, error);
+      throw error;
+    }
   },
 
-  delete: async (id: string): Promise<void> => {
-    await api.delete(`/invoices/${id}`);
+  delete: async (id: string | number): Promise<void> => {
+    try {
+      return await api.delete<void>(`${INVOICES_PATH}/${id}`);
+    } catch (error) {
+      console.error(`Error deleting invoice ${id}:`, error);
+      throw error;
+    }
   },
 
-  updateStatus: async (id: string, status: 'paid' | 'unpaid' | 'overdue'): Promise<Invoice> => {
-    const response = await api.put<Invoice>(`/invoices/${id}/status`, { status });
-    return response.data;
+  updateStatus: async (id: string | number, status: 'paid' | 'unpaid' | 'overdue'): Promise<Invoice> => {
+    try {
+      return await api.put<Invoice>(`${INVOICES_PATH}/${id}/status`, { status });
+    } catch (error) {
+      console.error(`Error updating invoice ${id} status:`, error);
+      throw error;
+    }
   }
 };
 

@@ -1,25 +1,13 @@
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Eye } from "lucide-react";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Eye, MoreHorizontal, AlertTriangle, Loader2 } from "lucide-react";
 import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
+import { useToast } from "@/components/ui/use-toast";
 import invoiceService, { Invoice } from "@/services/invoiceService";
-import { toast } from "@/components/ui/sonner";
 
 interface InvoiceListProps {
   filter: string;
@@ -29,27 +17,41 @@ export const InvoiceList = ({ filter }: InvoiceListProps) => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
         setLoading(true);
-        const data = await invoiceService.getAll(filter === "all" ? undefined : filter);
-        setInvoices(data);
         setError(null);
+        const data = await invoiceService.getAll(filter === "all" ? undefined : filter as any);
+        setInvoices(data);
       } catch (err) {
         console.error("Failed to fetch invoices:", err);
         setError("Failed to load invoices. Please try again later.");
+        toast({
+          variant: "destructive",
+          title: "Error loading invoices",
+          description: "Using mock data as fallback.",
+        });
         // Use mock data as fallback
         setInvoices(mockInvoices);
-        toast.error("Using mock data: Backend connection failed");
       } finally {
         setLoading(false);
       }
     };
 
     fetchInvoices();
-  }, [filter]);
+  }, [filter, toast]);
+
+  if (loading) {
+    return (
+      <div className="border rounded-md p-8 flex flex-col items-center justify-center">
+        <Loader2 className="h-8 w-8 text-primary animate-spin mb-2" />
+        <p className="text-sm text-muted-foreground">Loading invoices...</p>
+      </div>
+    );
+  }
 
   // Mock data for fallback
   const mockInvoices: Invoice[] = [
@@ -142,26 +144,19 @@ export const InvoiceList = ({ filter }: InvoiceListProps) => {
     }
   ];
 
-  if (loading) {
-    return (
-      <div className="border rounded-md p-8 text-center">
-        <p>Loading invoices...</p>
-      </div>
-    );
-  }
-
-  const displayInvoices = error ? mockInvoices : invoices;
   const filteredInvoices = filter === "all" 
-    ? displayInvoices
-    : displayInvoices.filter(invoice => invoice.status === filter);
-  
+    ? invoices 
+    : invoices.filter(invoice => invoice.status === filter);
+
   return (
     <div className="border rounded-md">
       {error && (
-        <div className="bg-yellow-50 p-4 border-b border-yellow-200">
-          <p className="text-yellow-800">{error}</p>
+        <div className="bg-amber-50 border-b border-amber-200 p-3 flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-amber-500" />
+          <p className="text-sm text-amber-700">{error}</p>
         </div>
       )}
+      
       <Table>
         <TableHeader>
           <TableRow>
@@ -208,14 +203,14 @@ export const InvoiceList = ({ filter }: InvoiceListProps) => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link to={`/invoices/${invoice.id}`} className="cursor-pointer">
+                          <Link to={`/invoices/${invoice.id}`} className="cursor-pointer flex items-center">
                             <Eye className="mr-2 h-4 w-4" /> View
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <span className="flex items-center">
+                        <DropdownMenuItem asChild>
+                          <a href={`mailto:${invoice.patientName?.replace(' ', '.')}@example.com?subject=Invoice ${invoice.invoiceNumber}&body=Please find your invoice attached.`} className="flex items-center">
                             <Eye className="mr-2 h-4 w-4" /> Send
-                          </span>
+                          </a>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

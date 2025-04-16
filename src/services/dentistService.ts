@@ -8,8 +8,8 @@ export interface Dentist {
   email?: string;
   phone?: string;
   address?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface DentistCreateRequest {
@@ -22,27 +22,48 @@ export interface DentistCreateRequest {
 
 const dentistService = {
   getAll: async (): Promise<Dentist[]> => {
-    const response = await api.get<Dentist[]>('/dentists');
-    return response.data;
+    try {
+      return await api.get<Dentist[]>('/dentists');
+    } catch (error) {
+      console.error("Failed to fetch dentists:", error);
+      throw error;
+    }
   },
 
   getById: async (id: number): Promise<Dentist> => {
-    const response = await api.get<Dentist>(`/dentists/${id}`);
-    return response.data;
+    try {
+      return await api.get<Dentist>(`/dentists/${id}`);
+    } catch (error) {
+      console.error(`Failed to fetch dentist with ID ${id}:`, error);
+      throw error;
+    }
   },
 
   create: async (dentist: DentistCreateRequest): Promise<Dentist> => {
-    const response = await api.post<Dentist>('/dentists', dentist);
-    return response.data;
+    try {
+      return await api.post<Dentist>('/dentists', dentist);
+    } catch (error) {
+      console.error("Failed to create dentist:", error);
+      throw error;
+    }
   },
 
   update: async (id: number, dentist: Partial<Dentist>): Promise<Dentist> => {
-    const response = await api.put<Dentist>(`/dentists/${id}`, dentist);
-    return response.data;
+    try {
+      return await api.put<Dentist>(`/dentists/${id}`, dentist);
+    } catch (error) {
+      console.error(`Failed to update dentist ${id}:`, error);
+      throw error;
+    }
   },
 
   delete: async (id: number): Promise<void> => {
-    await api.delete(`/dentists/${id}`);
+    try {
+      await api.delete(`/dentists/${id}`);
+    } catch (error) {
+      console.error(`Failed to delete dentist ${id}:`, error);
+      throw error;
+    }
   }
 };
 

@@ -1,95 +1,137 @@
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { CalendarIcon, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface InvoicePaymentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   invoiceId: string;
   amount: number;
+  onConfirm?: () => Promise<void>;
 }
 
-export const InvoicePaymentDialog = ({ 
+export function InvoicePaymentDialog({ 
   open, 
-  onOpenChange,
-  invoiceId,
-  amount
-}: InvoicePaymentDialogProps) => {
-  const navigate = useNavigate();
-  const [paymentAmount, setPaymentAmount] = useState(amount.toFixed(2));
-  const [paymentMethod, setPaymentMethod] = useState("credit");
-  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
-  
-  const handleSubmit = () => {
-    toast({
-      title: "Payment recorded",
-      description: `Payment of $${paymentAmount} for invoice ${invoiceId} has been recorded.`,
-    });
-    onOpenChange(false);
-    navigate("/invoices");
+  onOpenChange, 
+  invoiceId, 
+  amount,
+  onConfirm 
+}: InvoicePaymentDialogProps) {
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reference, setReference] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('Credit Card');
+
+  const handleConfirm = async () => {
+    if (!onConfirm) return;
+    
+    try {
+      setIsSubmitting(true);
+      await onConfirm();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-  
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Record Payment</DialogTitle>
           <DialogDescription>
-            Record a payment for invoice {invoiceId}
+            Record a payment for invoice {invoiceId}.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="amount">Payment Amount</Label>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="amount" className="text-right">
+              Amount
+            </Label>
+            <div className="col-span-3">
+              <Input
+                id="amount"
+                value={`$${amount.toFixed(2)}`}
+                disabled
+                className="bg-muted"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="date" className="text-right">
+              Date
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant={"outline"}
+                  className={cn(
+                    "col-span-3 justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, 'PPP') : <span>Select a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="method" className="text-right">
+              Method
+            </Label>
             <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              min="0"
-              value={paymentAmount}
-              onChange={(e) => setPaymentAmount(e.target.value)}
+              id="method"
+              className="col-span-3"
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
             />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="method">Payment Method</Label>
-            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-              <SelectTrigger id="method">
-                <SelectValue placeholder="Select payment method" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="credit">Credit Card</SelectItem>
-                <SelectItem value="cash">Cash</SelectItem>
-                <SelectItem value="bank">Bank Transfer</SelectItem>
-                <SelectItem value="insurance">Insurance</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="date">Payment Date</Label>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="reference" className="text-right">
+              Reference
+            </Label>
             <Input
-              id="date"
-              type="date"
-              value={paymentDate}
-              onChange={(e) => setPaymentDate(e.target.value)}
+              id="reference"
+              className="col-span-3"
+              placeholder="Payment reference or transaction ID"
+              value={reference}
+              onChange={(e) => setReference(e.target.value)}
             />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="reference">Reference Number (Optional)</Label>
-            <Input id="reference" placeholder="e.g., Transaction ID" />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSubmit}>Record Payment</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button type="submit" onClick={handleConfirm} disabled={isSubmitting || !date}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Record Payment"
+            )}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-};
+}

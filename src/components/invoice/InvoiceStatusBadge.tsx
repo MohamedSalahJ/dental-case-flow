@@ -1,32 +1,37 @@
 
 import { Badge } from "@/components/ui/badge";
-import { Check, Clock, XCircle } from "lucide-react";
+import { cva } from "class-variance-authority";
+import { CheckCircle, Clock, XCircle } from "lucide-react";
+
+const badgeVariantMap = {
+  paid: "success",
+  unpaid: "outline",
+  overdue: "destructive"
+} as const;
+
+const badgeIconMap = {
+  paid: <CheckCircle className="h-3.5 w-3.5 mr-1" />,
+  unpaid: <Clock className="h-3.5 w-3.5 mr-1" />,
+  overdue: <XCircle className="h-3.5 w-3.5 mr-1" />
+};
 
 interface InvoiceStatusBadgeProps {
-  status: "paid" | "unpaid" | "overdue";
+  status: 'paid' | 'unpaid' | 'overdue' | string;
 }
 
-export const InvoiceStatusBadge = ({ status }: InvoiceStatusBadgeProps) => {
-  switch (status) {
-    case "paid":
-      return (
-        <Badge className="bg-green-500 hover:bg-green-600">
-          <Check className="mr-1 h-3 w-3" /> Paid
-        </Badge>
-      );
-    case "unpaid":
-      return (
-        <Badge className="bg-amber-500 hover:bg-amber-600">
-          <Clock className="mr-1 h-3 w-3" /> Unpaid
-        </Badge>
-      );
-    case "overdue":
-      return (
-        <Badge className="bg-red-500 hover:bg-red-600">
-          <XCircle className="mr-1 h-3 w-3" /> Overdue
-        </Badge>
-      );
-    default:
-      return null;
-  }
-};
+export function InvoiceStatusBadge({ status }: InvoiceStatusBadgeProps) {
+  // Ensure status is a valid key, default to 'unpaid'
+  const validStatus = (status && Object.keys(badgeVariantMap).includes(status)) 
+    ? status as keyof typeof badgeVariantMap 
+    : 'unpaid';
+  
+  const variant = badgeVariantMap[validStatus];
+  const icon = badgeIconMap[validStatus];
+  
+  return (
+    <Badge variant={variant} className="font-medium flex items-center">
+      {icon}
+      {validStatus.charAt(0).toUpperCase() + validStatus.slice(1)}
+    </Badge>
+  );
+}

@@ -29,33 +29,58 @@ export interface CaseCreateRequest {
 
 const caseService = {
   getAll: async (filter?: string): Promise<Case[]> => {
-    const url = filter ? `/cases?status=${filter}` : '/cases';
-    const response = await api.get<Case[]>(url);
-    return response.data;
+    try {
+      const url = filter ? `/cases?status=${filter}` : '/cases';
+      return await api.get<Case[]>(url);
+    } catch (error) {
+      console.error("Failed to fetch cases:", error);
+      throw error;
+    }
   },
 
   getById: async (id: number): Promise<Case> => {
-    const response = await api.get<Case>(`/cases/${id}`);
-    return response.data;
+    try {
+      return await api.get<Case>(`/cases/${id}`);
+    } catch (error) {
+      console.error(`Failed to fetch case with ID ${id}:`, error);
+      throw error;
+    }
   },
 
   create: async (caseData: CaseCreateRequest): Promise<Case> => {
-    const response = await api.post<Case>('/cases', caseData);
-    return response.data;
+    try {
+      return await api.post<Case>('/cases', caseData);
+    } catch (error) {
+      console.error("Failed to create case:", error);
+      throw error;
+    }
   },
 
   update: async (id: number, caseData: Partial<Case>): Promise<Case> => {
-    const response = await api.put<Case>(`/cases/${id}`, caseData);
-    return response.data;
+    try {
+      return await api.put<Case>(`/cases/${id}`, caseData);
+    } catch (error) {
+      console.error(`Failed to update case ${id}:`, error);
+      throw error;
+    }
   },
 
   delete: async (id: number): Promise<void> => {
-    await api.delete(`/cases/${id}`);
+    try {
+      await api.delete(`/cases/${id}`);
+    } catch (error) {
+      console.error(`Failed to delete case ${id}:`, error);
+      throw error;
+    }
   },
 
   updateStatus: async (id: number, status: string): Promise<Case> => {
-    const response = await api.put<Case>(`/cases/${id}/status`, { status });
-    return response.data;
+    try {
+      return await api.put<Case>(`/cases/${id}/status`, { status });
+    } catch (error) {
+      console.error(`Failed to update status for case ${id}:`, error);
+      throw error;
+    }
   }
 };
 
