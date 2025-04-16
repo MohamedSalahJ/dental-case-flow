@@ -1,7 +1,9 @@
 
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import MainLayout from "../components/layout/MainLayout";
-import { ChevronLeft, Upload, Save } from "lucide-react";
+import { ChevronLeft, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -9,10 +11,58 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import PrescriptionForm from "../components/prescriptions/PrescriptionForm";
 import DentalChart from "../components/prescriptions/DentalChart";
+import caseService from "@/services/caseService";
+import patientService from "@/services/patientService";
+import dentistService from "@/services/dentistService";
 
 const NewCase = () => {
   const [activeTab, setActiveTab] = useState("details");
   const { toast } = useToast();
+  const navigate = useNavigate();
+  
+  // Fetch dentists and patients for the form
+  const { data: dentists } = useQuery({
+    queryKey: ['dentists'],
+    queryFn: () => dentistService.getAll(),
+  });
+  
+  const { data: patients } = useQuery({
+    queryKey: ['patients'],
+    queryFn: () => patientService.getAll(),
+  });
+  
+  // Mutation for creating a new case
+  const createCaseMutation = useMutation({
+    mutationFn: (caseData: any) => caseService.create(caseData),
+    onSuccess: () => {
+      toast({
+        title: "Case created",
+        description: "Your case has been created successfully.",
+      });
+      navigate("/cases");
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Failed to create case",
+        description: "There was an error creating your case. Please try again.",
+      });
+      console.error("Failed to create case:", error);
+    },
+  });
+
+  // Handle form submission
+  const handleSubmit = (formData: any) => {
+    createCaseMutation.mutate({
+      title: formData.title,
+      description: formData.description,
+      status: "new",
+      priority: formData.priority,
+      patientId: formData.patientId,
+      dentistId: formData.dentistId,
+      dueDate: formData.dueDate,
+    });
+  };
 
   const handleSubmitDraft = () => {
     toast({
@@ -35,7 +85,13 @@ const NewCase = () => {
           </div>
           <div className="flex space-x-2">
             <Button variant="outline" onClick={handleSubmitDraft}>Save as Draft</Button>
-            <Button type="submit" form="prescription-form">Submit Case</Button>
+            <Button 
+              type="submit" 
+              form="prescription-form"
+              disabled={createCaseMutation.isPending}
+            >
+              {createCaseMutation.isPending ? "Submitting..." : "Submit Case"}
+            </Button>
           </div>
         </div>
         
@@ -59,7 +115,10 @@ const NewCase = () => {
                 <PrescriptionForm 
                   id="prescription-form" 
                   activeTab={activeTab} 
-                  setActiveTab={setActiveTab} 
+                  setActiveTab={setActiveTab}
+                  onSubmit={handleSubmit}
+                  dentists={dentists || []}
+                  patients={patients || []}
                 />
               </TabsContent>
               
@@ -68,7 +127,10 @@ const NewCase = () => {
                   <PrescriptionForm 
                     id="prescription-form" 
                     activeTab={activeTab} 
-                    setActiveTab={setActiveTab} 
+                    setActiveTab={setActiveTab}
+                    onSubmit={handleSubmit}
+                    dentists={dentists || []}
+                    patients={patients || []}
                   />
                 ) : (
                   <div className="text-center py-12 text-muted-foreground">
