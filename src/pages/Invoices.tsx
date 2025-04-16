@@ -1,9 +1,9 @@
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import MainLayout from "../components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { InvoiceList } from "@/components/invoice/InvoiceList";
@@ -13,44 +13,47 @@ import invoiceService from "@/services/invoiceService";
 const Invoices = () => {
   const [filter, setFilter] = useState("all");
   
-  const { data: allInvoices } = useQuery({
+  const { data: allInvoices, isLoading, error } = useQuery({
     queryKey: ['invoices'],
     queryFn: () => invoiceService.getAll(),
   });
 
   // Calculate statistics
-  const invoiceStats = {
-    unpaid: {
-      count: 0,
-      total: 0
-    },
-    overdue: {
-      count: 0,
-      total: 0
-    },
-    paid: {
-      count: 0,
-      total: 0
-    }
-  };
+  const invoiceStats = useMemo(() => {
+    const stats = {
+      unpaid: { count: 0, total: 0 },
+      overdue: { count: 0, total: 0 },
+      paid: { count: 0, total: 0 }
+    };
 
-  // Process invoice data for statistics
-  useEffect(() => {
-    if (allInvoices) {
+    if (allInvoices && allInvoices.length > 0) {
       allInvoices.forEach(invoice => {
         if (invoice.status === 'unpaid') {
-          invoiceStats.unpaid.count++;
-          invoiceStats.unpaid.total += invoice.total;
+          stats.unpaid.count++;
+          stats.unpaid.total += invoice.total;
         } else if (invoice.status === 'overdue') {
-          invoiceStats.overdue.count++;
-          invoiceStats.overdue.total += invoice.total;
+          stats.overdue.count++;
+          stats.overdue.total += invoice.total;
         } else if (invoice.status === 'paid') {
-          invoiceStats.paid.count++;
-          invoiceStats.paid.total += invoice.total;
+          stats.paid.count++;
+          stats.paid.total += invoice.total;
         }
       });
     }
+    
+    return stats;
   }, [allInvoices]);
+  
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="flex justify-center items-center h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2">Loading invoices...</span>
+        </div>
+      </MainLayout>
+    );
+  }
   
   return (
     <MainLayout>

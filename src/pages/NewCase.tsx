@@ -115,6 +115,9 @@ const NewCase = () => {
                   id="prescription-form" 
                   activeTab={activeTab} 
                   setActiveTab={setActiveTab}
+                  onSubmit={handleSubmit}
+                  dentists={dentists || []}
+                  patients={patients || []}
                 />
               </TabsContent>
               
@@ -124,6 +127,9 @@ const NewCase = () => {
                     id="prescription-form" 
                     activeTab={activeTab} 
                     setActiveTab={setActiveTab}
+                    onSubmit={handleSubmit}
+                    dentists={dentists || []}
+                    patients={patients || []}
                   />
                 ) : (
                   <div className="text-center py-12 text-muted-foreground">

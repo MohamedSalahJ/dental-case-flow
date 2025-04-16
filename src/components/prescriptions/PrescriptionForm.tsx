@@ -34,9 +34,19 @@ export interface PrescriptionFormProps {
   id?: string;
   activeTab?: string;
   setActiveTab?: Dispatch<SetStateAction<string>>;
+  onSubmit?: (formData: any) => void;
+  dentists?: any[];
+  patients?: any[];
 }
 
-const PrescriptionForm = ({ id, activeTab, setActiveTab }: PrescriptionFormProps) => {
+const PrescriptionForm = ({ 
+  id, 
+  activeTab, 
+  setActiveTab, 
+  onSubmit,
+  dentists = [],
+  patients = []
+}: PrescriptionFormProps) => {
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [formData, setFormData] = useState({
     title: '',
@@ -45,22 +55,46 @@ const PrescriptionForm = ({ id, activeTab, setActiveTab }: PrescriptionFormProps
     dentistId: '',
     priority: 'standard',
     dueDate: '',
+    material: 'zirconia',
+    teeth: [] as number[],
+    shadeGuide: '',
+    shade: '',
   });
   
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | string[] | number[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+  
+  const handleToothToggle = (toothNumber: number) => {
+    setFormData(prev => {
+      const teeth = [...prev.teeth];
+      const index = teeth.indexOf(toothNumber);
+      
+      if (index >= 0) {
+        // Remove the tooth if it's already selected
+        teeth.splice(index, 1);
+      } else {
+        // Add the tooth if it's not selected
+        teeth.push(toothNumber);
+      }
+      
+      return { ...prev, teeth };
+    });
   };
   
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // Form submission logic here
-    console.log('Form submitted:', formData);
+    if (onSubmit) {
+      onSubmit(formData);
+    }
   };
   
   const handleNextTab = () => {
     if (setActiveTab && activeTab === 'details') {
       setActiveTab('prescription');
     } else if (setActiveTab && activeTab === 'prescription') {
+      setActiveTab('dental-chart');
+    } else if (setActiveTab && activeTab === 'dental-chart') {
       setActiveTab('files');
     }
   };
@@ -77,28 +111,59 @@ const PrescriptionForm = ({ id, activeTab, setActiveTab }: PrescriptionFormProps
         <form id={id} onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="dentist-name">Dentist Name</Label>
-              <Input 
-                id="dentist-name" 
-                placeholder="Dr. Name" 
-                onChange={(e) => handleInputChange('dentistId', e.target.value)}
-              />
+              <Label htmlFor="dentist-name">Dentist</Label>
+              <Select 
+                value={formData.dentistId} 
+                onValueChange={(value) => handleInputChange('dentistId', value)}
+              >
+                <SelectTrigger id="dentist-name">
+                  <SelectValue placeholder="Select dentist" />
+                </SelectTrigger>
+                <SelectContent>
+                  {dentists.length === 0 ? (
+                    <SelectItem value="loading" disabled>Loading dentists...</SelectItem>
+                  ) : (
+                    dentists.map(dentist => (
+                      <SelectItem key={dentist.id} value={String(dentist.id)}>
+                        Dr. {dentist.firstName} {dentist.lastName}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="patient-name">Patient Name</Label>
-              <Input 
-                id="patient-name" 
-                placeholder="Patient name" 
-                onChange={(e) => handleInputChange('patientId', e.target.value)}
-              />
+              <Label htmlFor="patient-name">Patient</Label>
+              <Select 
+                value={formData.patientId} 
+                onValueChange={(value) => handleInputChange('patientId', value)}
+              >
+                <SelectTrigger id="patient-name">
+                  <SelectValue placeholder="Select patient" />
+                </SelectTrigger>
+                <SelectContent>
+                  {patients.length === 0 ? (
+                    <SelectItem value="loading" disabled>Loading patients...</SelectItem>
+                  ) : (
+                    patients.map(patient => (
+                      <SelectItem key={patient.id} value={String(patient.id)}>
+                        {patient.firstName} {patient.lastName}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           
           <div className="grid grid-cols-3 gap-4 mt-4">
             <div className="space-y-2">
               <Label htmlFor="restoration-type">Restoration Type</Label>
-              <Select onValueChange={(value) => handleInputChange('title', value)}>
+              <Select 
+                value={formData.title}
+                onValueChange={(value) => handleInputChange('title', value)}
+              >
                 <SelectTrigger id="restoration-type">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
@@ -115,7 +180,10 @@ const PrescriptionForm = ({ id, activeTab, setActiveTab }: PrescriptionFormProps
             
             <div className="space-y-2">
               <Label htmlFor="priority">Priority</Label>
-              <Select onValueChange={(value) => handleInputChange('priority', value)}>
+              <Select 
+                value={formData.priority}
+                onValueChange={(value) => handleInputChange('priority', value)}
+              >
                 <SelectTrigger id="priority">
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
@@ -134,6 +202,7 @@ const PrescriptionForm = ({ id, activeTab, setActiveTab }: PrescriptionFormProps
                   <Button
                     variant="outline"
                     className="w-full justify-start text-left"
+                    id="due-date"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {dueDate ? (
@@ -168,7 +237,12 @@ const PrescriptionForm = ({ id, activeTab, setActiveTab }: PrescriptionFormProps
               <div className="grid grid-cols-16 gap-1 text-center mb-4">
                 {Array.from({ length: 16 }, (_, i) => (
                   <div key={`upper-${i + 1}`} className="relative">
-                    <Checkbox id={`tooth-${i + 1}`} className="peer sr-only" />
+                    <Checkbox 
+                      id={`tooth-${i + 1}`} 
+                      className="peer sr-only" 
+                      checked={formData.teeth.includes(16 - i)}
+                      onCheckedChange={() => handleToothToggle(16 - i)}
+                    />
                     <Label
                       htmlFor={`tooth-${i + 1}`}
                       className="flex h-9 w-9 items-center justify-center rounded-md border border-muted bg-popover hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground"
@@ -181,7 +255,12 @@ const PrescriptionForm = ({ id, activeTab, setActiveTab }: PrescriptionFormProps
               <div className="grid grid-cols-16 gap-1 text-center">
                 {Array.from({ length: 16 }, (_, i) => (
                   <div key={`lower-${i + 1}`} className="relative">
-                    <Checkbox id={`tooth-${i + 17}`} className="peer sr-only" />
+                    <Checkbox 
+                      id={`tooth-${i + 17}`} 
+                      className="peer sr-only" 
+                      checked={formData.teeth.includes(i + 17)}
+                      onCheckedChange={() => handleToothToggle(i + 17)}
+                    />
                     <Label
                       htmlFor={`tooth-${i + 17}`}
                       className="flex h-9 w-9 items-center justify-center rounded-md border border-muted bg-popover hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground"
@@ -196,7 +275,11 @@ const PrescriptionForm = ({ id, activeTab, setActiveTab }: PrescriptionFormProps
           
           <div className="space-y-2 mt-4">
             <Label>Material</Label>
-            <RadioGroup defaultValue="zirconia" className="grid grid-cols-3 gap-2">
+            <RadioGroup 
+              value={formData.material}
+              onValueChange={(value) => handleInputChange('material', value)}
+              className="grid grid-cols-3 gap-2"
+            >
               <div>
                 <RadioGroupItem 
                   value="zirconia" 
@@ -242,7 +325,10 @@ const PrescriptionForm = ({ id, activeTab, setActiveTab }: PrescriptionFormProps
           <div className="space-y-2 mt-4">
             <Label htmlFor="shade">Shade</Label>
             <div className="flex space-x-4">
-              <Select>
+              <Select
+                value={formData.shadeGuide}
+                onValueChange={(value) => handleInputChange('shadeGuide', value)}
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select shade guide" />
                 </SelectTrigger>
@@ -253,7 +339,10 @@ const PrescriptionForm = ({ id, activeTab, setActiveTab }: PrescriptionFormProps
                 </SelectContent>
               </Select>
               
-              <Select>
+              <Select
+                value={formData.shade}
+                onValueChange={(value) => handleInputChange('shade', value)}
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select shade" />
                 </SelectTrigger>
@@ -290,6 +379,7 @@ const PrescriptionForm = ({ id, activeTab, setActiveTab }: PrescriptionFormProps
               id="special-instructions"
               placeholder="Enter any special instructions or additional details..."
               className="min-h-[120px]"
+              value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
             />
           </div>
@@ -297,7 +387,7 @@ const PrescriptionForm = ({ id, activeTab, setActiveTab }: PrescriptionFormProps
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button variant="outline">Cancel</Button>
-        {activeTab === 'details' || activeTab === 'prescription' ? (
+        {activeTab === 'details' || activeTab === 'prescription' || activeTab === 'dental-chart' ? (
           <Button onClick={handleNextTab}>
             Next
           </Button>
