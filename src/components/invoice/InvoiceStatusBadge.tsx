@@ -3,8 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { cva } from "class-variance-authority";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
 
+// Update the badge variant map to use valid variants from the badge component
 const badgeVariantMap = {
-  paid: "success",
+  paid: "default",
   unpaid: "outline",
   overdue: "destructive"
 } as const;

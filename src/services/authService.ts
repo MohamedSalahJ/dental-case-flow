@@ -30,18 +30,18 @@ export interface AuthResponse {
 const authService = {
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('/auth/register', data);
-    localStorage.setItem('token', response.data.token);
-    return response.data;
+    localStorage.setItem('token', response.token);
+    return response;
   },
 
   login: async (data: LoginRequest): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('/auth/login', data);
-    localStorage.setItem('token', response.data.token);
-    return response.data;
+    localStorage.setItem('token', response.token);
+    return response;
   },
 
   logout: async (): Promise<void> => {
-    await api.post('/auth/logout');
+    await api.post('/auth/logout', {});
     localStorage.removeItem('token');
   },
 

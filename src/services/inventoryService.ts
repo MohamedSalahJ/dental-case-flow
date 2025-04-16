@@ -48,22 +48,22 @@ export interface InventoryItemCreateRequest {
 const inventoryService = {
   getAllItems: async (): Promise<InventoryItem[]> => {
     const response = await api.get<InventoryItem[]>('/inventory');
-    return response.data;
+    return response;
   },
 
   getItemById: async (id: number): Promise<InventoryItem> => {
     const response = await api.get<InventoryItem>(`/inventory/${id}`);
-    return response.data;
+    return response;
   },
 
   createItem: async (item: InventoryItemCreateRequest): Promise<InventoryItem> => {
     const response = await api.post<InventoryItem>('/inventory', item);
-    return response.data;
+    return response;
   },
 
   updateItem: async (id: number, item: Partial<InventoryItemCreateRequest>): Promise<InventoryItem> => {
     const response = await api.put<InventoryItem>(`/inventory/${id}`, item);
-    return response.data;
+    return response;
   },
 
   deleteItem: async (id: number): Promise<void> => {
@@ -72,12 +72,12 @@ const inventoryService = {
 
   getAllCategories: async (): Promise<InventoryCategory[]> => {
     const response = await api.get<InventoryCategory[]>('/inventory/categories');
-    return response.data;
+    return response;
   },
 
   getAllSuppliers: async (): Promise<Supplier[]> => {
     const response = await api.get<Supplier[]>('/inventory/suppliers');
-    return response.data;
+    return response;
   }
 };
 
