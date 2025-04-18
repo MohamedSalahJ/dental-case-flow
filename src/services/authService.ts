@@ -8,6 +8,7 @@ export interface RegisterRequest {
   password: string;
   firstName: string;
   lastName: string;
+  role: string;
 }
 
 export interface LoginRequest {
@@ -31,18 +32,20 @@ const authService = {
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('/auth/register', data);
     localStorage.setItem('token', response.token);
+    localStorage.setItem('user', JSON.stringify(response.user));
     return response;
   },
 
   login: async (data: LoginRequest): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('/auth/login', data);
     localStorage.setItem('token', response.token);
+    localStorage.setItem('user', JSON.stringify(response.user));
     return response;
   },
 
   logout: async (): Promise<void> => {
-    await api.post('/auth/logout', {});
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
   },
 
   getCurrentUser: (): AuthResponse['user'] | null => {
@@ -50,14 +53,16 @@ const authService = {
     if (!token) return null;
     
     try {
-      // This is a simplified approach. In a real app, you'd decode the JWT token
-      // or make an API call to fetch the current user info
       const userJson = localStorage.getItem('user');
       return userJson ? JSON.parse(userJson) : null;
     } catch (error) {
       console.error('Error parsing user from localStorage', error);
       return null;
     }
+  },
+
+  isAuthenticated: (): boolean => {
+    return localStorage.getItem('token') !== null;
   }
 };
 

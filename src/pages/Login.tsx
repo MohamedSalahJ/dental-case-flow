@@ -1,26 +1,42 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, UserRound, Lock, LogIn } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import authService from "@/services/authService";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [credentials, setCredentials] = useState({ username: "", password: "" });
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real implementation, this would authenticate with the backend
-    console.log("Logging in with:", credentials);
-    toast({
-      title: "Login Successful",
-      description: "Welcome to DentalFlow!",
-    });
+    setIsLoading(true);
+    
+    try {
+      await authService.login(credentials);
+      toast({
+        title: "Login Successful",
+        description: "Welcome to DentalFlow!",
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Login error:", error);
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: "Invalid username or password. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -44,16 +60,16 @@ const Login = () => {
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="username">Username</Label>
                 <div className="relative">
                   <UserRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="you@example.com"
+                    id="username" 
+                    type="text" 
+                    placeholder="yourusername"
                     className="pl-10"
-                    value={credentials.email}
-                    onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+                    value={credentials.username}
+                    onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
                     required
                   />
                 </div>
@@ -89,8 +105,14 @@ const Login = () => {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col">
-              <Button type="submit" className="w-full mb-4">
-                <LogIn className="mr-2 h-4 w-4" /> Sign in
+              <Button type="submit" className="w-full mb-4" disabled={isLoading}>
+                {isLoading ? (
+                  <>Loading...</>
+                ) : (
+                  <>
+                    <LogIn className="mr-2 h-4 w-4" /> Sign in
+                  </>
+                )}
               </Button>
               <p className="text-sm text-center text-muted-foreground">
                 Don't have an account?{" "}

@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   LayoutDashboard, 
   FileText, 
@@ -13,11 +13,36 @@ import {
   ChevronLeft,
   ChevronRight,
   HelpCircle,
-  Receipt
+  Receipt,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import authService from "@/services/authService";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
-const navItems = [
+// Define navigation items based on user role
+const getDentistNavItems = () => [
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Cases", href: "/cases", icon: FileText },
+  { name: "Calendar", href: "/calendar", icon: Calendar },
+  { name: "Messages", href: "/messages", icon: MessageSquare },
+  { name: "My Invoices", href: "/invoices", icon: Receipt },
+  { name: "Help", href: "/help", icon: HelpCircle },
+  { name: "Settings", href: "/settings", icon: Settings },
+];
+
+const getTechnicianNavItems = () => [
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Calendar", href: "/calendar", icon: Calendar },
+  { name: "Invoices", href: "/invoices", icon: Receipt },
+  { name: "Reports", href: "/reports", icon: BarChart3 },
+  { name: "Inventory", href: "/inventory", icon: Package },
+  { name: "Help", href: "/help", icon: HelpCircle },
+  { name: "Settings", href: "/settings", icon: Settings },
+];
+
+const getAdminNavItems = () => [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Cases", href: "/cases", icon: FileText },
   { name: "Calendar", href: "/calendar", icon: Calendar },
@@ -32,6 +57,42 @@ const navItems = [
 const Sidebar = () => {
   const location = useLocation();
   const [expanded, setExpanded] = useState(true);
+  const [navItems, setNavItems] = useState<any[]>([]);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    
+    if (user) {
+      switch (user.role) {
+        case 'dentist':
+          setNavItems(getDentistNavItems());
+          break;
+        case 'technician':
+          setNavItems(getTechnicianNavItems());
+          break;
+        case 'admin':
+          setNavItems(getAdminNavItems());
+          break;
+        default:
+          // Default to admin view if role is unknown
+          setNavItems(getAdminNavItems());
+      }
+    } else {
+      // If no user is logged in, default to admin view
+      setNavItems(getAdminNavItems());
+    }
+  }, []);
+  
+  const handleLogout = async () => {
+    await authService.logout();
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out.",
+    });
+    navigate("/login");
+  };
   
   return (
     <aside 
@@ -84,6 +145,17 @@ const Sidebar = () => {
       </div>
       
       <div className="p-4 border-t border-border">
+        <Button 
+          variant="ghost" 
+          className={cn(
+            "w-full flex items-center mb-2",
+            !expanded && "justify-center"
+          )}
+          onClick={handleLogout}
+        >
+          <LogOut className="h-5 w-5 mr-2" />
+          {expanded && <span>Logout</span>}
+        </Button>
         <Button 
           variant="ghost" 
           size="icon" 

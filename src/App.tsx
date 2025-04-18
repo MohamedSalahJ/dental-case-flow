@@ -3,7 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -34,26 +35,105 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/dashboard" element={<Index />} />
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/cases" element={<Cases />} />
-          <Route path="/cases/:id" element={<CaseDetail />} />
-          <Route path="/new-case" element={<NewCase />} />
-          <Route path="/calendar" element={<Calendar />} />
-          <Route path="/messages" element={<Messages />} />
-          <Route path="/invoices" element={<Invoices />} />
-          <Route path="/invoices/:id" element={<InvoiceDetail />} />
-          <Route path="/invoices/new" element={<NewInvoice />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/inventory" element={<Inventory />} />
-          <Route path="/inventory/add" element={<AddEditInventoryItem />} />
-          <Route path="/inventory/edit/:id" element={<AddEditInventoryItem />} />
-          <Route path="/inventory/categories" element={<ManageCategories />} />
-          <Route path="/inventory/suppliers" element={<ManageSuppliers />} />
-          <Route path="/help" element={<Help />} />
-          <Route path="/settings" element={<Settings />} />
+          
+          {/* Protected Routes for All Authenticated Users */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Index />
+            </ProtectedRoute>
+          } />
+          <Route path="/calendar" element={
+            <ProtectedRoute>
+              <Calendar />
+            </ProtectedRoute>
+          } />
+          <Route path="/help" element={
+            <ProtectedRoute>
+              <Help />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          } />
+          
+          {/* Protected Routes for Dentists and Admins */}
+          <Route path="/cases" element={
+            <ProtectedRoute allowedRoles={['dentist', 'admin']}>
+              <Cases />
+            </ProtectedRoute>
+          } />
+          <Route path="/cases/:id" element={
+            <ProtectedRoute allowedRoles={['dentist', 'admin']}>
+              <CaseDetail />
+            </ProtectedRoute>
+          } />
+          <Route path="/new-case" element={
+            <ProtectedRoute allowedRoles={['dentist', 'admin']}>
+              <NewCase />
+            </ProtectedRoute>
+          } />
+          <Route path="/messages" element={
+            <ProtectedRoute allowedRoles={['dentist', 'admin']}>
+              <Messages />
+            </ProtectedRoute>
+          } />
+          
+          {/* Protected Routes for Technicians and Admins */}
+          <Route path="/reports" element={
+            <ProtectedRoute allowedRoles={['technician', 'admin']}>
+              <Reports />
+            </ProtectedRoute>
+          } />
+          <Route path="/inventory" element={
+            <ProtectedRoute allowedRoles={['technician', 'admin']}>
+              <Inventory />
+            </ProtectedRoute>
+          } />
+          <Route path="/inventory/add" element={
+            <ProtectedRoute allowedRoles={['technician', 'admin']}>
+              <AddEditInventoryItem />
+            </ProtectedRoute>
+          } />
+          <Route path="/inventory/edit/:id" element={
+            <ProtectedRoute allowedRoles={['technician', 'admin']}>
+              <AddEditInventoryItem />
+            </ProtectedRoute>
+          } />
+          <Route path="/inventory/categories" element={
+            <ProtectedRoute allowedRoles={['technician', 'admin']}>
+              <ManageCategories />
+            </ProtectedRoute>
+          } />
+          <Route path="/inventory/suppliers" element={
+            <ProtectedRoute allowedRoles={['technician', 'admin']}>
+              <ManageSuppliers />
+            </ProtectedRoute>
+          } />
+          
+          {/* Protected Routes for All Roles */}
+          <Route path="/invoices" element={
+            <ProtectedRoute>
+              <Invoices />
+            </ProtectedRoute>
+          } />
+          <Route path="/invoices/:id" element={
+            <ProtectedRoute>
+              <InvoiceDetail />
+            </ProtectedRoute>
+          } />
+          <Route path="/invoices/new" element={
+            <ProtectedRoute allowedRoles={['technician', 'admin']}>
+              <NewInvoice />
+            </ProtectedRoute>
+          } />
+          
+          {/* Catch All Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

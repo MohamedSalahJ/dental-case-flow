@@ -20,4 +20,16 @@ public class ReportController {
             @RequestParam(defaultValue = "12") int months) {
         return ResponseEntity.ok(reportService.getFinancialReport(months));
     }
+    
+    @GetMapping("/cases")
+    public ResponseEntity<ReportDTO> getCaseReport(
+            @RequestParam(defaultValue = "12") int months) {
+        return ResponseEntity.ok(reportService.getCaseReport(months));
+    }
+    
+    @GetMapping("/dentists")
+    public ResponseEntity<ReportDTO> getDentistReport(
+            @RequestParam(defaultValue = "12") int months) {
+        return ResponseEntity.ok(reportService.getDentistReport(months));
+    }
 }
