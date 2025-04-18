@@ -3,7 +3,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import MainLayout from "../components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { InvoiceList } from "@/components/invoice/InvoiceList";
@@ -50,6 +50,20 @@ const Invoices = () => {
         <div className="flex justify-center items-center h-[60vh]">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-2">Loading invoices...</span>
+        </div>
+      </MainLayout>
+    );
+  }
+  
+  if (error) {
+    return (
+      <MainLayout>
+        <div className="flex flex-col justify-center items-center h-[60vh]">
+          <AlertTriangle className="h-8 w-8 text-destructive mb-2" />
+          <p className="text-destructive">Failed to load invoices. Please try again later.</p>
+          <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+            Retry
+          </Button>
         </div>
       </MainLayout>
     );

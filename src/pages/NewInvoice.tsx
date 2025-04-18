@@ -1,6 +1,7 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import MainLayout from "../components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,18 +13,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Trash2, Plus, Save } from "lucide-react";
+import { ArrowLeft, Trash2, Plus, Save, Loader2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
+import dentistService from "@/services/dentistService";
+import patientService from "@/services/patientService";
+import caseService from "@/services/caseService";
+import invoiceService from "@/services/invoiceService";
 
 const NewInvoice = () => {
   const navigate = useNavigate();
+  
+  // State for form fields
+  const [dentistId, setDentistId] = useState<string>("");
+  const [patientId, setPatientId] = useState<string>("");
+  const [caseId, setCaseId] = useState<string>("");
+  const [invoiceDate, setInvoiceDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [dueDate, setDueDate] = useState<string>("");
+  const [notes, setNotes] = useState<string>("");
   const [items, setItems] = useState([
     { id: 1, description: "", quantity: 1, unitPrice: 0 }
   ]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Fetch dentists, patients, and cases
+  const { data: dentists = [] } = useQuery({
+    queryKey: ['dentists'],
+    queryFn: () => dentistService.getAll(),
+  });
+  
+  const { data: patients = [] } = useQuery({
+    queryKey: ['patients'],
+    queryFn: () => patientService.getAll(),
+  });
+  
+  const { data: cases = [] } = useQuery({
+    queryKey: ['cases'],
+    queryFn: () => caseService.getAll(),
+  });
+
+  // Calculate totals
   const calculateSubtotal = () => {
     return items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
   };
@@ -36,6 +67,15 @@ const NewInvoice = () => {
     return calculateSubtotal() + calculateTax();
   };
   
+  // Set due date based on payment terms
+  const handlePaymentTermsChange = (value: string) => {
+    const days = parseInt(value);
+    const date = new Date(invoiceDate);
+    date.setDate(date.getDate() + days);
+    setDueDate(date.toISOString().split('T')[0]);
+  };
+  
+  // Handle items
   const addItem = () => {
     setItems([
       ...items,
@@ -61,14 +101,71 @@ const NewInvoice = () => {
     ));
   };
   
+  // Create invoice mutation
+  const createInvoiceMutation = useMutation({
+    mutationFn: (invoiceData: any) => invoiceService.create(invoiceData),
+    onSuccess: () => {
+      toast({
+        title: "Invoice created",
+        description: "Your invoice has been created successfully."
+      });
+      navigate("/invoices");
+    },
+    onError: (error) => {
+      console.error("Error creating invoice:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create invoice. Please try again.",
+        variant: "destructive"
+      });
+      setIsSubmitting(false);
+    }
+  });
+  
+  // Form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Invoice created",
-      description: "Your invoice has been created successfully."
-    });
-    navigate("/invoices");
+    
+    if (!dentistId || !patientId || !invoiceDate || !dueDate || items.some(item => !item.description)) {
+      toast({
+        title: "Missing required fields",
+        description: "Please fill out all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    const invoiceData = {
+      dentistId: parseInt(dentistId),
+      patientId: parseInt(patientId),
+      caseId: caseId ? parseInt(caseId) : null,
+      status: "unpaid",
+      issueDate: invoiceDate,
+      dueDate: dueDate,
+      amount: calculateSubtotal(),
+      tax: calculateTax(),
+      total: calculateTotal(),
+      notes: notes,
+      items: items.map(item => ({
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice
+      }))
+    };
+    
+    createInvoiceMutation.mutate(invoiceData);
   };
+  
+  // Set default due date when invoice date changes
+  useEffect(() => {
+    if (invoiceDate) {
+      const date = new Date(invoiceDate);
+      date.setDate(date.getDate() + 15); // Default to 15 days
+      setDueDate(date.toISOString().split('T')[0]);
+    }
+  }, [invoiceDate]);
   
   return (
     <MainLayout>
@@ -91,40 +188,47 @@ const NewInvoice = () => {
               <CardContent className="space-y-4">
                 <div className="grid gap-2">
                   <Label htmlFor="dentist">Dentist</Label>
-                  <Select required>
+                  <Select value={dentistId} onValueChange={setDentistId} required>
                     <SelectTrigger id="dentist">
                       <SelectValue placeholder="Select a dentist" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="dr-alice-johnson">Dr. Alice Johnson</SelectItem>
-                      <SelectItem value="dr-robert-chen">Dr. Robert Chen</SelectItem>
-                      <SelectItem value="dr-emily-wilson">Dr. Emily Wilson</SelectItem>
+                      {dentists.map(dentist => (
+                        <SelectItem key={dentist.id} value={dentist.id.toString()}>
+                          {dentist.firstName} {dentist.lastName}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="patient">Patient</Label>
-                  <Select required>
+                  <Select value={patientId} onValueChange={setPatientId} required>
                     <SelectTrigger id="patient">
                       <SelectValue placeholder="Select a patient" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="john-smith">John Smith</SelectItem>
-                      <SelectItem value="sarah-williams">Sarah Williams</SelectItem>
-                      <SelectItem value="michael-davis">Michael Davis</SelectItem>
+                      {patients.map(patient => (
+                        <SelectItem key={patient.id} value={patient.id.toString()}>
+                          {patient.firstName} {patient.lastName}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="case">Related Case (Optional)</Label>
-                  <Select>
+                  <Select value={caseId} onValueChange={setCaseId}>
                     <SelectTrigger id="case">
                       <SelectValue placeholder="Select a case" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="c-2025-042">C-2025-042 (Crown)</SelectItem>
-                      <SelectItem value="c-2025-041">C-2025-041 (Veneer)</SelectItem>
-                      <SelectItem value="c-2025-039">C-2025-039 (Bridge)</SelectItem>
+                      <SelectItem value="">None</SelectItem>
+                      {cases.map(caseItem => (
+                        <SelectItem key={caseItem.id} value={caseItem.id.toString()}>
+                          {caseItem.caseNumber} ({caseItem.caseType})
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -138,15 +242,27 @@ const NewInvoice = () => {
               <CardContent className="space-y-4">
                 <div className="grid gap-2">
                   <Label htmlFor="invoiceDate">Invoice Date</Label>
-                  <Input type="date" id="invoiceDate" defaultValue={new Date().toISOString().split('T')[0]} required />
+                  <Input 
+                    type="date" 
+                    id="invoiceDate" 
+                    value={invoiceDate}
+                    onChange={(e) => setInvoiceDate(e.target.value)}
+                    required 
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="dueDate">Due Date</Label>
-                  <Input type="date" id="dueDate" required />
+                  <Input 
+                    type="date" 
+                    id="dueDate" 
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    required 
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="paymentTerms">Payment Terms</Label>
-                  <Select defaultValue="15">
+                  <Select defaultValue="15" onValueChange={handlePaymentTermsChange}>
                     <SelectTrigger id="paymentTerms">
                       <SelectValue placeholder="Select payment terms" />
                     </SelectTrigger>
@@ -247,16 +363,26 @@ const NewInvoice = () => {
               <Textarea 
                 placeholder="Enter any additional notes or payment instructions here..."
                 className="min-h-[100px]"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
               />
             </CardContent>
           </Card>
           
           <div className="flex justify-end gap-4">
             <Link to="/invoices">
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" type="button">Cancel</Button>
             </Link>
-            <Button type="submit">
-              <Save className="mr-2 h-4 w-4" /> Save Invoice
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" /> Save Invoice
+                </>
+              )}
             </Button>
           </div>
         </form>

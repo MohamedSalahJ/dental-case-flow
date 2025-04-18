@@ -1,15 +1,16 @@
-
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import MainLayout from "../components/layout/MainLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, LineChart, Line } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Download, Calendar } from "lucide-react";
+import { Download, Calendar, Loader2, AlertTriangle } from "lucide-react";
 import { format, subDays } from "date-fns";
+import reportService from "@/services/reportService";
 
-// Sample data
+// Sample data for PieCharts
 const caseStatusData = [
   { name: "New", value: 12, color: "#06b6d4" },
   { name: "In Progress", value: 24, color: "#3b82f6" },
@@ -26,31 +27,65 @@ const caseTypeData = [
   { name: "Denture", value: 8, color: "#10b981" },
 ];
 
-const monthlyCompletionData = [
-  { name: "Jan", value: 25 },
-  { name: "Feb", value: 30 },
-  { name: "Mar", value: 28 },
-  { name: "Apr", value: 32 },
-  { name: "May", value: 27 },
-  { name: "Jun", value: 35 },
-  { name: "Jul", value: 40 },
-  { name: "Aug", value: 37 },
-  { name: "Sep", value: 42 },
-  { name: "Oct", value: 45 },
-  { name: "Nov", value: 48 },
-  { name: "Dec", value: 52 },
-];
-
-const topDentistsData = [
-  { name: "Dr. Alice Johnson", cases: 28 },
-  { name: "Dr. Robert Chen", cases: 22 },
-  { name: "Dr. Emily Wilson", cases: 19 },
-  { name: "Dr. James Wilson", cases: 17 },
-  { name: "Dr. David Kim", cases: 15 },
-];
-
 const Reports = () => {
-  const [timeRange, setTimeRange] = useState("90days");
+  const [timeRange, setTimeRange] = useState("12months");
+  
+  const getMonthsFromRange = () => {
+    switch (timeRange) {
+      case "30days": return 1;
+      case "90days": return 3;
+      case "6months": return 6;
+      case "ytd": 
+        const currentMonth = new Date().getMonth() + 1;
+        return currentMonth;
+      case "12months":
+      default:
+        return 12;
+    }
+  };
+  
+  const { data: financialReport, isLoading, error } = useQuery({
+    queryKey: ['financialReport', timeRange],
+    queryFn: () => reportService.getFinancialReport(getMonthsFromRange()),
+  });
+  
+  // Format monthly revenue data for the chart
+  const monthlyRevenueData = financialReport?.monthlyRevenue?.map(item => ({
+    name: `${item.month}/${item.year}`,
+    value: item.total
+  })) || [];
+  
+  // Format top dentists data for the chart
+  const topDentistsData = financialReport?.topDentists?.map(dentist => ({
+    name: `${dentist.firstName} ${dentist.lastName}`,
+    cases: dentist.invoiceCount,
+    amount: dentist.totalAmount
+  })) || [];
+  
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="flex justify-center items-center h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2">Loading report data...</span>
+        </div>
+      </MainLayout>
+    );
+  }
+  
+  if (error) {
+    return (
+      <MainLayout>
+        <div className="flex flex-col justify-center items-center h-[60vh]">
+          <AlertTriangle className="h-8 w-8 text-destructive mb-2" />
+          <p className="text-destructive">Failed to load report data. Please try again later.</p>
+          <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </div>
+      </MainLayout>
+    );
+  }
   
   return (
     <MainLayout>
@@ -82,13 +117,15 @@ const Reports = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">
-                Total Cases
+                Unpaid Invoices
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">78</div>
+              <div className="text-2xl font-bold">
+                ${financialReport?.invoiceSummary.unpaidTotal.toFixed(2) || '0.00'}
+              </div>
               <p className="text-xs text-muted-foreground">
-                +12% from previous period
+                {financialReport?.invoiceSummary.unpaidCount || 0} invoices
               </p>
             </CardContent>
           </Card>
@@ -96,13 +133,15 @@ const Reports = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">
-                Average Turnaround
+                Overdue Invoices
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">5.2 days</div>
+              <div className="text-2xl font-bold">
+                ${financialReport?.invoiceSummary.overdueTotal.toFixed(2) || '0.00'}
+              </div>
               <p className="text-xs text-muted-foreground">
-                -0.8 days from previous period
+                {financialReport?.invoiceSummary.overdueCount || 0} invoices
               </p>
             </CardContent>
           </Card>
@@ -110,24 +149,72 @@ const Reports = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">
-                On-Time Delivery
+                Paid Invoices
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">92%</div>
+              <div className="text-2xl font-bold">
+                ${financialReport?.invoiceSummary.paidTotal.toFixed(2) || '0.00'}
+              </div>
               <p className="text-xs text-muted-foreground">
-                +3% from previous period
+                {financialReport?.invoiceSummary.paidCount || 0} invoices
               </p>
             </CardContent>
           </Card>
         </div>
         
-        <Tabs defaultValue="cases" className="w-full">
+        <Tabs defaultValue="financial" className="w-full">
           <TabsList className="w-full max-w-md grid grid-cols-3">
+            <TabsTrigger value="financial">Financial</TabsTrigger>
             <TabsTrigger value="cases">Case Analytics</TabsTrigger>
             <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="clients">Client Analytics</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="financial" className="space-y-4 pt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Monthly Revenue</CardTitle>
+                <CardDescription>
+                  Revenue generated per month
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={monthlyRevenueData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#3b82f6" name="Revenue" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Top Dentists by Revenue</CardTitle>
+                <CardDescription>
+                  Dentists generating the most revenue
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={topDentistsData}
+                    layout="vertical"
+                    margin={{ left: 100 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" />
+                    <YAxis dataKey="name" type="category" width={100} />
+                    <Tooltip />
+                    <Bar dataKey="amount" fill="#8b5cf6" name="Revenue" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </TabsContent>
           
           <TabsContent value="cases" className="space-y-4 pt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -322,101 +409,6 @@ const Reports = () => {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="clients" className="space-y-4 pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Top Dentists by Volume</CardTitle>
-                  <CardDescription>
-                    Dentists with most cases submitted
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart
-                      data={topDentistsData}
-                      layout="vertical"
-                      margin={{ left: 100 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis dataKey="name" type="category" width={100} />
-                      <Tooltip />
-                      <Bar dataKey="cases" fill="#8b5cf6" name="Cases" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Case Type Distribution by Dentist</CardTitle>
-                  <CardDescription>
-                    Types of cases submitted by top dentists
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart
-                      data={[
-                        { name: "Dr. Johnson", crown: 12, bridge: 5, veneer: 8, implant: 3 },
-                        { name: "Dr. Chen", crown: 8, bridge: 4, veneer: 2, implant: 8 },
-                        { name: "Dr. Wilson", crown: 5, bridge: 3, veneer: 7, implant: 4 },
-                        { name: "Dr. Kim", crown: 7, bridge: 2, veneer: 4, implant: 2 }
-                      ]}
-                      margin={{ left: 70 }}
-                      layout="vertical"
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis dataKey="name" type="category" width={70} />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="crown" stackId="a" fill="#8b5cf6" name="Crown" />
-                      <Bar dataKey="bridge" stackId="a" fill="#ec4899" name="Bridge" />
-                      <Bar dataKey="veneer" stackId="a" fill="#06b6d4" name="Veneer" />
-                      <Bar dataKey="implant" stackId="a" fill="#f59e0b" name="Implant" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Client Activity Timeline</CardTitle>
-                <CardDescription>
-                  New cases submitted over time
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart
-                    data={[
-                      { date: format(subDays(new Date(), 30), "MMM d"), cases: 4 },
-                      { date: format(subDays(new Date(), 27), "MMM d"), cases: 3 },
-                      { date: format(subDays(new Date(), 24), "MMM d"), cases: 5 },
-                      { date: format(subDays(new Date(), 21), "MMM d"), cases: 2 },
-                      { date: format(subDays(new Date(), 18), "MMM d"), cases: 6 },
-                      { date: format(subDays(new Date(), 15), "MMM d"), cases: 4 },
-                      { date: format(subDays(new Date(), 12), "MMM d"), cases: 3 },
-                      { date: format(subDays(new Date(), 9), "MMM d"), cases: 5 },
-                      { date: format(subDays(new Date(), 6), "MMM d"), cases: 7 },
-                      { date: format(subDays(new Date(), 3), "MMM d"), cases: 6 },
-                      { date: format(new Date(), "MMM d"), cases: 8 }
-                    ]}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="cases" stroke="#3b82f6" name="New Cases" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
       </div>
