@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import MainLayout from "../components/layout/MainLayout";
 import MessageThread from "../components/messaging/MessageThread";
@@ -26,55 +25,8 @@ import {
 import { Link } from "react-router-dom";
 import StatusUpdateDialog from "../components/cases/StatusUpdateDialog";
 import { toast } from "@/components/ui/use-toast";
-
-const mockMessages = [
-  {
-    id: "msg-1",
-    sender: "Dr. Alice Johnson",
-    senderInitials: "AJ",
-    content: "Hello, I'm sending over a new crown case for John. Please see the attached prescription for details.",
-    timestamp: "Yesterday at 10:23 AM",
-    isCurrentUser: false,
-    attachments: [
-      {
-        name: "John_Smith_Prescription.pdf",
-        url: "#",
-        type: "application/pdf",
-      },
-    ],
-  },
-  {
-    id: "msg-2",
-    sender: "Tom Wilson",
-    senderInitials: "TW",
-    content: "Thanks for the case. I've reviewed the prescription and have a question about the shade. Could you confirm if you want A2 or A3?",
-    timestamp: "Yesterday at 2:45 PM",
-    isCurrentUser: true,
-  },
-  {
-    id: "msg-3",
-    sender: "Dr. Alice Johnson",
-    senderInitials: "AJ",
-    content: "Let's go with A3 to better match the adjacent teeth. I've attached a shade photo for reference.",
-    timestamp: "Yesterday at 4:12 PM",
-    isCurrentUser: false,
-    attachments: [
-      {
-        name: "Shade_Photo_John.jpg",
-        url: "#",
-        type: "image/jpeg",
-      },
-    ],
-  },
-  {
-    id: "msg-4",
-    sender: "Tom Wilson",
-    senderInitials: "TW",
-    content: "Perfect, I'll proceed with A3. The case is now in progress. Expected completion by the 22nd.",
-    timestamp: "Today at 9:30 AM",
-    isCurrentUser: true,
-  },
-];
+import messageService, { Message } from "@/services/messageService";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const statusColors = {
   new: "bg-dental-teal text-white",
@@ -89,6 +41,7 @@ type CaseStatus = keyof typeof statusColors;
 const CaseDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("details");
+  const queryClient = useQueryClient();
   
   // In a real app, you would fetch this data based on the ID
   const [caseData, setCaseData] = useState({
@@ -124,6 +77,26 @@ const CaseDetail = () => {
       notes: "Working on crown preparation"
     },
   ]);
+
+  const { data: messages = [] } = useQuery({
+    queryKey: ['caseMessages', id],
+    queryFn: () => id ? messageService.getMessagesByCaseId(id) : Promise.resolve([]),
+    enabled: !!id,
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: (content: string) => 
+      messageService.sendMessage({
+        senderId: 'current-user-id',
+        receiverId: caseData.dentistInitials,
+        content,
+        isRead: false,
+        caseId: id
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['caseMessages', id] });
+    }
+  });
 
   const handleStatusUpdate = (newStatus: CaseStatus, notes: string) => {
     // In a real app, you would make an API call here
@@ -303,7 +276,10 @@ const CaseDetail = () => {
                   <TabsContent value="details" className="flex-1 m-0 px-0">
                     <MessageThread
                       caseId={caseData.id}
-                      messages={mockMessages}
+                      messages={messages}
+                      onSendMessage={(content) => {
+                        sendMessageMutation.mutate(content);
+                      }}
                     />
                   </TabsContent>
                   <TabsContent value="files" className="m-0 p-6">
