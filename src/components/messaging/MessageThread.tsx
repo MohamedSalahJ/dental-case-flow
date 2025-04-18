@@ -36,7 +36,6 @@ const MessageThread = ({ caseId, messages, onSendMessage }: MessageThreadProps) 
                 <Avatar className="h-8 w-8 mt-1">
                   <AvatarImage src="" alt="Sender" />
                   <AvatarFallback className="bg-muted-foreground text-background text-xs">
-                    {/* You might want to get sender initials from the backend */}
                     {message.senderId.slice(0,2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>

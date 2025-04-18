@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import MainLayout from "../components/layout/MainLayout";
@@ -29,10 +30,16 @@ const Messages = () => {
   });
 
   const sendMessageMutation = useMutation({
-    mutationFn: (newMessage: Omit<Message, 'id' | 'timestamp'>) => 
-      messageService.sendMessage(newMessage),
+    mutationFn: (content: string) => 
+      messageService.sendMessage({
+        senderId: 'current-user-id',
+        receiverId: selectedContact?.id || '',
+        content,
+        isRead: false,
+        caseId: selectedContact?.id
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['caseMessages'] });
+      queryClient.invalidateQueries({ queryKey: ['caseMessages', selectedContact?.id] });
     }
   });
 
@@ -66,6 +73,11 @@ const Messages = () => {
               </div>
             ) : (
               <Tabs defaultValue="recent" className="flex-1 flex flex-col">
+                <TabsList className="w-full rounded-none border-b bg-transparent px-4">
+                  <TabsTrigger value="recent" className="flex-1">Recent</TabsTrigger>
+                  <TabsTrigger value="all" className="flex-1">All Contacts</TabsTrigger>
+                </TabsList>
+                
                 <TabsContent value="recent" className="flex-1 m-0 overflow-auto">
                   <div className="divide-y">
                     {filteredContacts.length === 0 ? (
@@ -84,9 +96,9 @@ const Messages = () => {
                           <div className="flex items-center space-x-3">
                             <div className="relative">
                               <Avatar>
-                                <AvatarImage src="" alt={contact.name} />
+                                <AvatarImage src={contact.avatar || ""} alt={contact.name} />
                                 <AvatarFallback className="bg-secondary text-secondary-foreground">
-                                  {contact.initials}
+                                  {contact.initials || contact.name.substring(0, 2).toUpperCase()}
                                 </AvatarFallback>
                               </Avatar>
                               {contact.online && (
@@ -97,14 +109,14 @@ const Messages = () => {
                               <div className="flex justify-between items-baseline">
                                 <p className="font-medium truncate">{contact.name}</p>
                                 <p className="text-xs text-muted-foreground flex-shrink-0">
-                                  {contact.timestamp}
+                                  {contact.timestamp || ""}
                                 </p>
                               </div>
                               <p className="text-sm text-muted-foreground truncate">
-                                {contact.lastMessage}
+                                {contact.lastMessage || ""}
                               </p>
                             </div>
-                            {contact.unread > 0 && (
+                            {contact.unread && contact.unread > 0 && (
                               <Badge className="ml-2 bg-primary">
                                 {contact.unread}
                               </Badge>
@@ -134,12 +146,7 @@ const Messages = () => {
                 caseId={selectedContact.id}
                 messages={messages || []}
                 onSendMessage={(content) => {
-                  sendMessageMutation.mutate({
-                    senderId: 'current-user-id',
-                    receiverId: selectedContact.id,
-                    content,
-                    isRead: false,
-                  });
+                  sendMessageMutation.mutate(content);
                 }}
               />
             ) : (

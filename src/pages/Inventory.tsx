@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -174,14 +175,14 @@ const Inventory = () => {
                           <TableCell>{item.categoryName}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <span>{item.quantity} {item.unit}s</span>
+                              <span>{item.quantity} {item.unit}</span>
                               {item.quantity <= item.reorderLevel && (
                                 <Badge variant="destructive" className="h-5 px-1.5">Low</Badge>
                               )}
                             </div>
                           </TableCell>
-                          <TableCell>{item.supplier}</TableCell>
-                          <TableCell>{item.lastOrdered}</TableCell>
+                          <TableCell>{item.supplierName}</TableCell>
+                          <TableCell>{item.lastOrdered || "N/A"}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end space-x-2">
                               <Button 
@@ -233,11 +234,11 @@ const Inventory = () => {
                           <TableCell>{item.categoryName}</TableCell>
                           <TableCell>
                             <Badge variant="destructive" className="mr-2">
-                              {item.quantity} {item.unit}s
+                              {item.quantity} {item.unit}
                             </Badge>
                           </TableCell>
-                          <TableCell>{item.reorderLevel} {item.unit}s</TableCell>
-                          <TableCell>{item.lastOrdered}</TableCell>
+                          <TableCell>{item.reorderLevel} {item.unit}</TableCell>
+                          <TableCell>{item.lastOrdered || "N/A"}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end space-x-2">
                               <Button 
