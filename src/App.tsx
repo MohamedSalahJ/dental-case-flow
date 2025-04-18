@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import Cases from "./pages/Cases";
 import CaseDetail from "./pages/CaseDetail";
 import NewCase from "./pages/NewCase";
+import Patients from "./pages/Patients";
 import Calendar from "./pages/Calendar";
 import Messages from "./pages/Messages";
 import Invoices from "./pages/Invoices";
@@ -76,6 +77,11 @@ const App = () => (
           <Route path="/new-case" element={
             <ProtectedRoute allowedRoles={['dentist', 'admin']}>
               <NewCase />
+            </ProtectedRoute>
+          } />
+          <Route path="/patients" element={
+            <ProtectedRoute allowedRoles={['dentist', 'admin']}>
+              <Patients />
             </ProtectedRoute>
           } />
           <Route path="/messages" element={

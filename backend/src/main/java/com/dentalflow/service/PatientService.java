@@ -27,6 +27,12 @@ public class PatientService {
                 .collect(Collectors.toList());
     }
     
+    public List<PatientDTO> getPatientsByDentistId(Long dentistId) {
+        return patientRepository.findByDentistId(dentistId).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
     public PatientDTO getPatientById(Long id) {
         return patientRepository.findById(id)
                 .map(this::convertToDTO)

@@ -25,6 +25,13 @@ public class CaseController {
         return ResponseEntity.ok(caseService.getAllCases(status));
     }
     
+    @GetMapping("/dentist/{dentistId}")
+    public ResponseEntity<List<CaseDTO>> getCasesByDentistId(
+            @PathVariable Long dentistId,
+            @RequestParam(required = false) String status) {
+        return ResponseEntity.ok(caseService.getCasesByDentistId(dentistId, status));
+    }
+    
     @GetMapping("/{id}")
     public ResponseEntity<CaseDTO> getCaseById(@PathVariable Long id) {
         return ResponseEntity.ok(caseService.getCaseById(id));

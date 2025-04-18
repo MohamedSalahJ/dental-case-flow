@@ -33,6 +33,15 @@ const patientService = {
     }
   },
 
+  getDentistPatients: async (dentistId: number): Promise<Patient[]> => {
+    try {
+      return await api.get<Patient[]>(`/patients/dentist/${dentistId}`);
+    } catch (error) {
+      console.error(`Failed to fetch patients for dentist ${dentistId}:`, error);
+      throw error;
+    }
+  },
+
   getById: async (id: number): Promise<Patient> => {
     try {
       return await api.get<Patient>(`/patients/${id}`);

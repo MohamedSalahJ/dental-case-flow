@@ -14,7 +14,8 @@ import {
   ChevronRight,
   HelpCircle,
   Receipt,
-  LogOut
+  LogOut,
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import authService from "@/services/authService";
@@ -25,6 +26,7 @@ import { useToast } from "@/components/ui/use-toast";
 const getDentistNavItems = () => [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Cases", href: "/cases", icon: FileText },
+  { name: "Patients", href: "/patients", icon: Users },
   { name: "Calendar", href: "/calendar", icon: Calendar },
   { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "My Invoices", href: "/invoices", icon: Receipt },
@@ -45,6 +47,7 @@ const getTechnicianNavItems = () => [
 const getAdminNavItems = () => [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Cases", href: "/cases", icon: FileText },
+  { name: "Patients", href: "/patients", icon: Users },
   { name: "Calendar", href: "/calendar", icon: Calendar },
   { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Invoices", href: "/invoices", icon: Receipt },
@@ -106,13 +109,13 @@ const Sidebar = () => {
           {expanded ? (
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-semibold">DL</span>
+                <span className="text-primary-foreground font-semibold">DF</span>
               </div>
               <span className="font-semibold text-lg">DentalFlow</span>
             </div>
           ) : (
             <div className="w-10 h-10 mx-auto rounded-full bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-semibold">DL</span>
+              <span className="text-primary-foreground font-semibold">DF</span>
             </div>
           )}
         </Link>

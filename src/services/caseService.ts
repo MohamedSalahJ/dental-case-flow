@@ -38,6 +38,18 @@ const caseService = {
     }
   },
 
+  getDentistCases: async (dentistId: number | string, filter?: string): Promise<Case[]> => {
+    try {
+      const url = filter 
+        ? `/cases/dentist/${dentistId}?status=${filter}` 
+        : `/cases/dentist/${dentistId}`;
+      return await api.get<Case[]>(url);
+    } catch (error) {
+      console.error(`Failed to fetch cases for dentist ${dentistId}:`, error);
+      throw error;
+    }
+  },
+
   getById: async (id: number): Promise<Case> => {
     try {
       return await api.get<Case>(`/cases/${id}`);

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -9,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import caseService from "@/services/caseService";
+import authService from "@/services/authService";
 
 const Cases = () => {
   const [filters, setFilters] = useState({
@@ -17,13 +17,19 @@ const Cases = () => {
     dentist: "",
   });
   
-  // Use React Query to fetch cases data
+  const currentUser = authService.getCurrentUser();
+  const isDentist = currentUser?.role === 'dentist';
+  
   const { data: casesData, isLoading, error } = useQuery({
-    queryKey: ['cases', filters.status],
-    queryFn: () => caseService.getAll(filters.status || undefined),
+    queryKey: ['cases', filters.status, isDentist],
+    queryFn: () => {
+      if (isDentist && currentUser?.id) {
+        return caseService.getDentistCases(currentUser.id, filters.status || undefined);
+      }
+      return caseService.getAll(filters.status || undefined);
+    },
   });
 
-  // Transform API case data to match the format expected by CaseCard
   const transformCaseData = (apiCases: any[] = []) => {
     if (!apiCases.length) return [];
     
@@ -36,11 +42,10 @@ const Cases = () => {
       type: caseItem.title,
       dueDate: caseItem.dueDate ? new Date(caseItem.dueDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : "No due date",
       priority: caseItem.priority?.toLowerCase() || "medium",
-      unreadMessages: 0, // This would need to come from a separate messages API
+      unreadMessages: 0,
     }));
   };
   
-  // Prepare the data for rendering
   const preparedCases = casesData ? transformCaseData(casesData) : [];
   
   const handleFilterChange = (newFilters: any) => {
