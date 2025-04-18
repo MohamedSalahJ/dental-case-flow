@@ -1,6 +1,6 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import MainLayout from "../components/layout/MainLayout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,83 +8,49 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, AlertTriangle, RefreshCw, Package, FileText, Pencil, Tag, Truck } from "lucide-react";
-
-const inventoryData = [
-  {
-    id: "INV001",
-    name: "IPS e.max Press Ingot",
-    category: "Ceramic",
-    stock: 42,
-    threshold: 10,
-    lastOrdered: "Mar 15, 2025",
-    unit: "pack",
-    supplier: "Ivoclar Vivadent",
-  },
-  {
-    id: "INV002",
-    name: "Vita Enamic Block",
-    category: "Ceramic",
-    stock: 8,
-    threshold: 10,
-    lastOrdered: "Mar 28, 2025",
-    unit: "pack",
-    supplier: "VITA",
-  },
-  {
-    id: "INV003",
-    name: "3M ESPE Lava Zirconia Disc",
-    category: "Zirconia",
-    stock: 15,
-    threshold: 5,
-    lastOrdered: "Feb 12, 2025",
-    unit: "disc",
-    supplier: "3M ESPE",
-  },
-  {
-    id: "INV004",
-    name: "Nobel Biocare Temporary Abutment",
-    category: "Implant Components",
-    stock: 3,
-    threshold: 5,
-    lastOrdered: "Mar 05, 2025",
-    unit: "piece",
-    supplier: "Nobel Biocare",
-  },
-  {
-    id: "INV005",
-    name: "Noritake CZR Press LF Porcelain",
-    category: "Porcelain",
-    stock: 18,
-    threshold: 8,
-    lastOrdered: "Jan 28, 2025",
-    unit: "set",
-    supplier: "Kuraray Noritake",
-  },
-  {
-    id: "INV006",
-    name: "GC Initial LiSi Press",
-    category: "Ceramic",
-    stock: 22,
-    threshold: 15,
-    lastOrdered: "Feb 18, 2025",
-    unit: "pack",
-    supplier: "GC America",
-  },
-];
+import { Plus, Search, AlertTriangle, RefreshCw, Package, FileText, Pencil, Tag, Truck, Loader2 } from "lucide-react";
+import inventoryService from "@/services/inventoryService";
 
 const Inventory = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   
-  const filteredItems = inventoryData.filter(item => 
+  const { data: inventoryData, isLoading, error } = useQuery({
+    queryKey: ['inventoryItems'],
+    queryFn: () => inventoryService.getAllItems(),
+  });
+
+  const filteredItems = inventoryData?.filter(item => 
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    item.categoryName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.id.toString().toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
   
-  const lowStockItems = inventoryData.filter(item => item.stock <= item.threshold);
+  const lowStockItems = inventoryData?.filter(item => 
+    item.quantity <= item.reorderLevel
+  ) || [];
   
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="flex justify-center items-center h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2">Loading inventory...</span>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <MainLayout>
+        <div className="flex justify-center items-center h-[60vh] text-destructive">
+          <p>Error loading inventory. Please try again.</p>
+        </div>
+      </MainLayout>
+    );
+  }
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -115,9 +81,9 @@ const Inventory = () => {
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{inventoryData.length}</div>
+              <div className="text-2xl font-bold">{inventoryData?.length}</div>
               <p className="text-xs text-muted-foreground">
-                Across {new Set(inventoryData.map(item => item.category)).size} categories
+                Across {new Set(inventoryData?.map(item => item.categoryName)).size} categories
               </p>
             </CardContent>
           </Card>
@@ -205,11 +171,11 @@ const Inventory = () => {
                         <TableRow key={item.id}>
                           <TableCell className="font-medium">{item.id}</TableCell>
                           <TableCell>{item.name}</TableCell>
-                          <TableCell>{item.category}</TableCell>
+                          <TableCell>{item.categoryName}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <span>{item.stock} {item.unit}s</span>
-                              {item.stock <= item.threshold && (
+                              <span>{item.quantity} {item.unit}s</span>
+                              {item.quantity <= item.reorderLevel && (
                                 <Badge variant="destructive" className="h-5 px-1.5">Low</Badge>
                               )}
                             </div>
@@ -264,13 +230,13 @@ const Inventory = () => {
                         <TableRow key={item.id}>
                           <TableCell className="font-medium">{item.id}</TableCell>
                           <TableCell>{item.name}</TableCell>
-                          <TableCell>{item.category}</TableCell>
+                          <TableCell>{item.categoryName}</TableCell>
                           <TableCell>
                             <Badge variant="destructive" className="mr-2">
-                              {item.stock} {item.unit}s
+                              {item.quantity} {item.unit}s
                             </Badge>
                           </TableCell>
-                          <TableCell>{item.threshold} {item.unit}s</TableCell>
+                          <TableCell>{item.reorderLevel} {item.unit}s</TableCell>
                           <TableCell>{item.lastOrdered}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end space-x-2">
@@ -304,7 +270,7 @@ const Inventory = () => {
           </CardContent>
           <CardFooter className="border-t bg-muted/50 flex justify-between">
             <div className="text-sm text-muted-foreground">
-              Showing {filteredItems.length} of {inventoryData.length} items
+              Showing {filteredItems.length} of {inventoryData?.length} items
             </div>
             <Button variant="outline" size="sm">
               Export Inventory
