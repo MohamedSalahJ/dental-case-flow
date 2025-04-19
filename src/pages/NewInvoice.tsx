@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { PlusCircle, Trash2 } from "lucide-react";
-import invoiceService, { InvoiceCreateRequest } from "@/services/invoiceService";
+import invoiceService, { InvoiceCreateRequest, InvoiceItem as ServiceInvoiceItem } from "@/services/invoiceService";
 import dentistService, { Dentist } from "@/services/dentistService";
 import patientService, { Patient } from "@/services/patientService";
 import caseService from "@/services/caseService";
@@ -39,7 +39,7 @@ const NewInvoice = () => {
     caseId: null as number | null,
     issueDate: today,
     dueDate: today,
-    status: 'unpaid',
+    status: 'unpaid' as 'paid' | 'unpaid' | 'overdue',
     notes: '',
     tax: 0
   });
@@ -111,13 +111,19 @@ const NewInvoice = () => {
   };
 
   // Update item total when quantity or unit price changes
-  const updateItem = (index: number, field: 'description' | 'quantity' | 'unitPrice', value: any) => {
+  const updateItem = (index: number, field: 'description' | 'quantity' | 'unitPrice', value: string | number) => {
     const updatedItems = [...items];
-    updatedItems[index][field] = value;
     
-    // Recalculate amount
-    if (field === 'quantity' || field === 'unitPrice') {
-      updatedItems[index].amount = updatedItems[index].quantity * updatedItems[index].unitPrice;
+    if (field === 'description') {
+      updatedItems[index].description = value as string;
+    } else if (field === 'quantity') {
+      const quantity = typeof value === 'number' ? value : parseInt(value as string) || 0;
+      updatedItems[index].quantity = quantity;
+      updatedItems[index].amount = quantity * updatedItems[index].unitPrice;
+    } else if (field === 'unitPrice') {
+      const unitPrice = typeof value === 'number' ? value : parseFloat(value as string) || 0;
+      updatedItems[index].unitPrice = unitPrice;
+      updatedItems[index].amount = updatedItems[index].quantity * unitPrice;
     }
     
     setItems(updatedItems);
@@ -176,7 +182,7 @@ const NewInvoice = () => {
       patientId: invoiceData.patientId,
       dentistId: invoiceData.dentistId,
       caseId: invoiceData.caseId || undefined,
-      status: invoiceData.status as 'paid' | 'unpaid' | 'overdue',
+      status: invoiceData.status,
       amount: calculateSubtotal(),
       tax: invoiceData.tax,
       total: calculateTotal(),
