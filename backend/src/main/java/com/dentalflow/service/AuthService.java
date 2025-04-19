@@ -1,6 +1,6 @@
-
 package com.dentalflow.service;
 
+import com.dentalflow.config.JwtConfig;
 import com.dentalflow.dto.AuthRequestDTO;
 import com.dentalflow.dto.AuthResponseDTO;
 import com.dentalflow.dto.RegisterRequestDTO;
@@ -17,6 +17,7 @@ import java.util.Optional;
 public class AuthService {
     
     private final UserRepository userRepository;
+    private final JwtConfig jwtConfig;
     
     public AuthResponseDTO register(RegisterRequestDTO registerRequest) {
         // Check if username or email already exists
@@ -39,8 +40,8 @@ public class AuthService {
         
         User savedUser = userRepository.save(user);
         
-        // Generate JWT token (simplified for demo)
-        String token = "jwt-token-" + savedUser.getId();
+        // Generate JWT token
+        String token = jwtConfig.generateToken(savedUser.getUsername(), savedUser.getRole());
         
         // Create response
         UserDTO userDto = new UserDTO(
@@ -65,13 +66,13 @@ public class AuthService {
         
         User user = userOptional.get();
         
-        // Verify password (simplified, in a real app you'd compare hashed passwords)
+        // Verify password
         if (!user.getPassword().equals(loginRequest.getPassword())) {
             throw new RuntimeException("Invalid username or password");
         }
         
-        // Generate JWT token (simplified for demo)
-        String token = "jwt-token-" + user.getId();
+        // Generate JWT token
+        String token = jwtConfig.generateToken(user.getUsername(), user.getRole());
         
         // Create response
         UserDTO userDto = new UserDTO(

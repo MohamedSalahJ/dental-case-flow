@@ -2,10 +2,8 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { toast } from '@/components/ui/use-toast';
 
-// Base URL for API calls
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
-// Create axios instance
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -13,7 +11,6 @@ const api = axios.create({
   },
 });
 
-// Request interceptor
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -27,18 +24,17 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor
 api.interceptors.response.use(
   (response) => {
-    return response;
+    return response.data;
   },
   (error) => {
     const status = error.response?.status;
     
-    // Show toast notification for errors
     if (error.response) {
       if (status === 401) {
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         window.location.href = '/login';
         toast({
           variant: "destructive",
@@ -65,7 +61,6 @@ api.interceptors.response.use(
   }
 );
 
-// Helper functions for common API operations
 const apiService = {
   get: <T>(url: string, config?: AxiosRequestConfig) => 
     api.get<T>(url, config).then(response => response.data),
