@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, UserRound, Lock, LogIn } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import authService from "@/services/authService";
 
@@ -32,7 +32,7 @@ const Login = () => {
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: "Invalid username or password. Please try again.",
+        description: "Invalid username/email or password. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -60,13 +60,13 @@ const Login = () => {
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Email or Username</Label>
                 <div className="relative">
-                  <UserRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input 
                     id="username" 
                     type="text" 
-                    placeholder="yourusername"
+                    placeholder="email@example.com or username"
                     className="pl-10"
                     value={credentials.username}
                     onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}

@@ -12,7 +12,7 @@ export interface RegisterRequest {
 }
 
 export interface LoginRequest {
-  username: string;
+  username: string; // Can be either username or email
   password: string;
 }
 

@@ -8,8 +8,9 @@ export interface Patient {
   email?: string;
   phone?: string;
   address?: string;
-  dentistId?: number;
-  dentistName?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  medicalHistory?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -20,7 +21,9 @@ export interface PatientCreateRequest {
   email?: string;
   phone?: string;
   address?: string;
-  dentistId?: number;
+  dateOfBirth?: string;
+  gender?: string;
+  medicalHistory?: string;
 }
 
 const patientService = {
@@ -29,15 +32,6 @@ const patientService = {
       return await api.get<Patient[]>('/patients');
     } catch (error) {
       console.error("Failed to fetch patients:", error);
-      throw error;
-    }
-  },
-
-  getDentistPatients: async (dentistId: number): Promise<Patient[]> => {
-    try {
-      return await api.get<Patient[]>(`/patients/dentist/${dentistId}`);
-    } catch (error) {
-      console.error(`Failed to fetch patients for dentist ${dentistId}:`, error);
       throw error;
     }
   },

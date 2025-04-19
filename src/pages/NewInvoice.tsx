@@ -1,8 +1,4 @@
 
-// We need to fix the caseType error
-// Implementation will depend on the existing code in this file
-// Since we don't have the specific file content, we'll create a minimal fix
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -17,14 +13,14 @@ import { toast } from "@/components/ui/use-toast";
 import { PlusCircle, Trash2 } from "lucide-react";
 import invoiceService from "@/services/invoiceService";
 import dentistService from "@/services/dentistService";
+import patientService from "@/services/patientService";
 import caseService from "@/services/caseService";
 
 interface InvoiceItem {
-  id?: number;
   description: string;
   quantity: number;
   unitPrice: number;
-  total: number;
+  amount: number;
 }
 
 const NewInvoice = () => {
@@ -32,17 +28,18 @@ const NewInvoice = () => {
   const today = new Date().toISOString().split('T')[0];
   
   const [invoiceData, setInvoiceData] = useState({
-    invoiceNumber: '',
+    patientId: 0,
     dentistId: 0,
-    caseId: 0,
+    caseId: null as number | null,
     issueDate: today,
     dueDate: today,
-    status: 'draft',
+    status: 'unpaid',
     notes: '',
+    tax: 0
   });
 
   const [items, setItems] = useState<InvoiceItem[]>([
-    { description: '', quantity: 1, unitPrice: 0, total: 0 }
+    { description: '', quantity: 1, unitPrice: 0, amount: 0 }
   ]);
 
   const navigate = useNavigate();
@@ -50,14 +47,28 @@ const NewInvoice = () => {
   // Fetch dentists
   const { data: dentists } = useQuery({
     queryKey: ['dentists'],
-    queryFn: dentistService.getAll
+    queryFn: () => dentistService.getAll()
   });
 
-  // Fetch cases
-  const { data: cases } = useQuery({
-    queryKey: ['cases'],
-    queryFn: () => caseService.getAll()
+  // Fetch patients
+  const { data: patients } = useQuery({
+    queryKey: ['patients'],
+    queryFn: () => patientService.getAll()
   });
+
+  // Fetch cases when dentist is selected
+  const { data: cases, refetch: refetchCases } = useQuery({
+    queryKey: ['cases', invoiceData.dentistId],
+    queryFn: () => invoiceData.dentistId ? caseService.getDentistCases(invoiceData.dentistId) : Promise.resolve([]),
+    enabled: !!invoiceData.dentistId
+  });
+
+  // Refetch cases when dentist changes
+  useEffect(() => {
+    if (invoiceData.dentistId) {
+      refetchCases();
+    }
+  }, [invoiceData.dentistId, refetchCases]);
 
   // Create invoice mutation
   const createInvoiceMutation = useMutation({
@@ -78,56 +89,73 @@ const NewInvoice = () => {
     }
   });
 
-  // Calculate total amount
-  const calculateTotal = () => {
-    return items.reduce((sum, item) => sum + item.total, 0);
+  // Calculate totals
+  const calculateSubtotal = () => {
+    return items.reduce((sum, item) => sum + item.amount, 0);
   };
 
-  // Generate invoice number
-  useEffect(() => {
-    const generateInvoiceNumber = () => {
-      const prefix = "INV";
-      const timestamp = Date.now().toString().slice(-6);
-      const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-      return `${prefix}-${timestamp}-${random}`;
-    };
+  const calculateTax = (subtotal: number) => {
+    const taxRate = 0.1; // 10% tax rate
+    return subtotal * taxRate;
+  };
 
-    setInvoiceData(prev => ({
-      ...prev,
-      invoiceNumber: generateInvoiceNumber()
-    }));
-  }, []);
+  const calculateTotal = () => {
+    const subtotal = calculateSubtotal();
+    return subtotal + invoiceData.tax;
+  };
 
   // Update item total when quantity or unit price changes
-  const updateItemTotal = (index: number, field: 'quantity' | 'unitPrice', value: number) => {
+  const updateItem = (index: number, field: 'description' | 'quantity' | 'unitPrice', value: any) => {
     const updatedItems = [...items];
     updatedItems[index][field] = value;
-    updatedItems[index].total = updatedItems[index].quantity * updatedItems[index].unitPrice;
+    
+    // Recalculate amount
+    if (field === 'quantity' || field === 'unitPrice') {
+      updatedItems[index].amount = updatedItems[index].quantity * updatedItems[index].unitPrice;
+    }
+    
     setItems(updatedItems);
-  };
-
-  // Update item description
-  const updateItemDescription = (index: number, value: string) => {
-    const updatedItems = [...items];
-    updatedItems[index].description = value;
-    setItems(updatedItems);
+    
+    // Update tax based on new subtotal
+    const subtotal = updatedItems.reduce((sum, item) => sum + item.amount, 0);
+    setInvoiceData(prev => ({
+      ...prev,
+      tax: calculateTax(subtotal)
+    }));
   };
 
   // Add new item
   const addItem = () => {
-    setItems([...items, { description: '', quantity: 1, unitPrice: 0, total: 0 }]);
+    setItems([...items, { description: '', quantity: 1, unitPrice: 0, amount: 0 }]);
   };
 
   // Remove item
   const removeItem = (index: number) => {
     if (items.length > 1) {
-      setItems(items.filter((_, i) => i !== index));
+      const updatedItems = items.filter((_, i) => i !== index);
+      setItems(updatedItems);
+      
+      // Update tax based on new subtotal
+      const subtotal = updatedItems.reduce((sum, item) => sum + item.amount, 0);
+      setInvoiceData(prev => ({
+        ...prev,
+        tax: calculateTax(subtotal)
+      }));
     }
   };
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!invoiceData.patientId || !invoiceData.dentistId) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Please select both patient and dentist.",
+      });
+      return;
+    }
     
     if (items.some(item => !item.description || item.quantity <= 0 || item.unitPrice <= 0)) {
       toast({
@@ -139,9 +167,21 @@ const NewInvoice = () => {
     }
     
     const invoiceRequest = {
-      ...invoiceData,
-      items,
-      totalAmount: calculateTotal()
+      patientId: invoiceData.patientId,
+      dentistId: invoiceData.dentistId,
+      caseId: invoiceData.caseId || null,
+      status: invoiceData.status,
+      amount: calculateSubtotal(),
+      tax: invoiceData.tax,
+      total: calculateTotal(),
+      notes: invoiceData.notes,
+      issueDate: invoiceData.issueDate,
+      dueDate: invoiceData.dueDate,
+      items: items.map(item => ({
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice
+      }))
     };
     
     createInvoiceMutation.mutate(invoiceRequest);
@@ -158,13 +198,22 @@ const NewInvoice = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <Label htmlFor="invoiceNumber">Invoice Number</Label>
-                <Input 
-                  id="invoiceNumber" 
-                  value={invoiceData.invoiceNumber} 
-                  onChange={(e) => setInvoiceData({...invoiceData, invoiceNumber: e.target.value})}
-                  disabled
-                />
+                <Label htmlFor="patient">Patient</Label>
+                <Select 
+                  value={invoiceData.patientId ? invoiceData.patientId.toString() : ""} 
+                  onValueChange={(value) => setInvoiceData({...invoiceData, patientId: parseInt(value)})}
+                >
+                  <SelectTrigger id="patient">
+                    <SelectValue placeholder="Select patient" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {patients?.map((patient: any) => (
+                      <SelectItem key={patient.id} value={patient.id.toString()}>
+                        {patient.firstName} {patient.lastName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               
               <div>
@@ -193,9 +242,10 @@ const NewInvoice = () => {
                   onValueChange={(value) => setInvoiceData({...invoiceData, caseId: parseInt(value)})}
                 >
                   <SelectTrigger id="case">
-                    <SelectValue placeholder="Select case" />
+                    <SelectValue placeholder="Select case (optional)" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="">No related case</SelectItem>
                     {cases?.map((caseItem: any) => (
                       <SelectItem key={caseItem.id} value={caseItem.id.toString()}>
                         {caseItem.patientName} - {caseItem.title || "Case"}
@@ -237,9 +287,9 @@ const NewInvoice = () => {
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="unpaid">Unpaid</SelectItem>
                     <SelectItem value="paid">Paid</SelectItem>
+                    <SelectItem value="overdue">Overdue</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -271,7 +321,7 @@ const NewInvoice = () => {
                       <TableCell>
                         <Input 
                           value={item.description} 
-                          onChange={(e) => updateItemDescription(index, e.target.value)} 
+                          onChange={(e) => updateItem(index, 'description', e.target.value)} 
                           placeholder="Item description"
                         />
                       </TableCell>
@@ -280,7 +330,7 @@ const NewInvoice = () => {
                           type="number" 
                           min="1" 
                           value={item.quantity} 
-                          onChange={(e) => updateItemTotal(index, 'quantity', parseInt(e.target.value) || 0)} 
+                          onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 0)} 
                         />
                       </TableCell>
                       <TableCell>
@@ -289,12 +339,12 @@ const NewInvoice = () => {
                           min="0" 
                           step="0.01" 
                           value={item.unitPrice} 
-                          onChange={(e) => updateItemTotal(index, 'unitPrice', parseFloat(e.target.value) || 0)} 
+                          onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value) || 0)} 
                           placeholder="0.00"
                         />
                       </TableCell>
                       <TableCell className="font-medium">
-                        ${item.total.toFixed(2)}
+                        ${item.amount.toFixed(2)}
                       </TableCell>
                       <TableCell>
                         <Button 
@@ -314,8 +364,19 @@ const NewInvoice = () => {
             </div>
             
             <div className="flex justify-end mt-4">
-              <div className="text-right">
-                <div className="text-lg">Total: <span className="font-bold">${calculateTotal().toFixed(2)}</span></div>
+              <div className="w-1/3 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Subtotal:</span>
+                  <span>${calculateSubtotal().toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Tax (10%):</span>
+                  <span>${invoiceData.tax.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between font-semibold text-lg pt-2 border-t">
+                  <span>Total:</span>
+                  <span>${calculateTotal().toFixed(2)}</span>
+                </div>
               </div>
             </div>
           </div>

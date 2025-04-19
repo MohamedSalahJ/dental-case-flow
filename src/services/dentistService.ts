@@ -7,6 +7,8 @@ export interface Dentist {
   lastName: string;
   email?: string;
   phone?: string;
+  specialization?: string;
+  clinic?: string;
   address?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -17,6 +19,8 @@ export interface DentistCreateRequest {
   lastName: string;
   email?: string;
   phone?: string;
+  specialization?: string;
+  clinic?: string;
   address?: string;
 }
 

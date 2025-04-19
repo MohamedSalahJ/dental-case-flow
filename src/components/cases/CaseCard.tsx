@@ -1,38 +1,30 @@
 
-import { Link } from "react-router-dom";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MessageSquare, Clipboard, CalendarClock } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Link } from "react-router-dom";
+import { MessageSquare, Clock } from "lucide-react";
 
 interface CaseCardProps {
-  id: string;
+  id: string | number;
   patientName: string;
   dentist: string;
   dentistInitials: string;
-  status: "new" | "in progress" | "pending review" | "completed" | "delivered";
+  status: string;
   type: string;
   dueDate: string;
-  unreadMessages?: number;
-  priority?: "low" | "medium" | "high";
+  priority: string;
+  unreadMessages: number;
 }
 
-const caseStatusColors = {
-  new: "bg-dental-teal text-white",
-  "in progress": "bg-blue-500 text-white",
-  "pending review": "bg-amber-500 text-white",
-  completed: "bg-green-500 text-white",
-  delivered: "bg-dental-gray text-dental-blue",
-};
-
-const priorityColors = {
-  low: "bg-dental-gray text-dental-blue",
-  medium: "bg-amber-400 text-amber-950",
-  high: "bg-accent text-white",
-};
-
-const CaseCard = ({
+export default function CaseCard({
   id,
   patientName,
   dentist,
@@ -40,68 +32,67 @@ const CaseCard = ({
   status,
   type,
   dueDate,
-  unreadMessages = 0,
   priority,
-}: CaseCardProps) => {
+  unreadMessages,
+}: CaseCardProps) {
+  const statusColors = {
+    new: "bg-blue-500",
+    "in-progress": "bg-yellow-500",
+    completed: "bg-green-500",
+    cancelled: "bg-red-500",
+    "on-hold": "bg-purple-500",
+  };
+
+  const priorityColors = {
+    high: "bg-red-100 text-red-800",
+    medium: "bg-yellow-100 text-yellow-800",
+    low: "bg-green-100 text-green-800",
+  };
+
+  const statusColor = statusColors[status as keyof typeof statusColors] || "bg-gray-500";
+  const priorityColor = priorityColors[priority as keyof typeof priorityColors] || "bg-gray-100 text-gray-800";
+
   return (
-    <Card className="overflow-hidden card-hover">
-      <div className={`h-1 ${status === "new" ? "bg-dental-teal" : status === "in progress" ? "bg-blue-500" : status === "pending review" ? "bg-amber-500" : status === "completed" ? "bg-green-500" : "bg-dental-gray"}`} />
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-4">
+    <Card className="overflow-hidden">
+      <div className={`h-1 w-full ${statusColor}`} />
+      <CardHeader className="p-4 pb-0">
+        <div className="flex justify-between items-start">
           <div>
-            <h3 className="font-medium">{patientName}</h3>
-            <p className="text-sm text-muted-foreground">{type} · {id}</p>
+            <CardDescription>{type}</CardDescription>
+            <div className="text-lg font-semibold truncate">{patientName}</div>
           </div>
-          <Badge className={caseStatusColors[status]}>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </Badge>
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+              {dentistInitials}
+            </AvatarFallback>
+          </Avatar>
         </div>
-        
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
-            <Avatar className="h-7 w-7">
-              <AvatarImage src="" alt={dentist} />
-              <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
-                {dentistInitials}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-sm">{dentist}</span>
-          </div>
-          {priority && (
-            <Badge variant="outline" className={priorityColors[priority]}>
-              {priority.charAt(0).toUpperCase() + priority.slice(1)} Priority
+      </CardHeader>
+      <CardContent className="p-4 pt-2">
+        <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
+          <div className="flex items-center gap-1">
+            <Badge variant="outline" className={priorityColor}>
+              {priority.charAt(0).toUpperCase() + priority.slice(1)}
             </Badge>
-          )}
-        </div>
-        
-        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-          <div className="flex items-center">
-            <CalendarClock className="mr-1 h-4 w-4" />
-            <span>Due: {dueDate}</span>
           </div>
-          {unreadMessages > 0 && (
-            <div className="flex items-center text-accent">
-              <MessageSquare className="mr-1 h-4 w-4" />
-              <span>{unreadMessages} new</span>
-            </div>
-          )}
+          <div className="flex items-center gap-1 justify-end text-muted-foreground">
+            <Clock className="h-3 w-3" />
+            <span className="truncate">{dueDate}</span>
+          </div>
         </div>
       </CardContent>
-      <CardFooter className="bg-muted/50 p-2">
-        <div className="w-full flex justify-between">
-          <Button variant="ghost" size="sm" className="h-8 px-2">
-            <Clipboard className="mr-1 h-4 w-4" />
-            Prescription
-          </Button>
-          <Link to={`/cases/${id}`}>
-            <Button size="sm" variant="secondary" className="h-8">
-              View Details
-            </Button>
-          </Link>
-        </div>
+      <CardFooter className="p-4 pt-0 flex justify-between">
+        <Button variant="ghost" size="sm" asChild>
+          <Link to={`/cases/${id}`}>View Details</Link>
+        </Button>
+        
+        {unreadMessages > 0 && (
+          <div className="flex items-center">
+            <MessageSquare className="h-4 w-4 text-primary mr-1" />
+            <span className="text-xs font-medium">{unreadMessages}</span>
+          </div>
+        )}
       </CardFooter>
     </Card>
   );
-};
-
-export default CaseCard;
+}

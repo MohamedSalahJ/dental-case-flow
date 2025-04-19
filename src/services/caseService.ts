@@ -50,7 +50,7 @@ const caseService = {
     }
   },
 
-  getById: async (id: number): Promise<Case> => {
+  getById: async (id: number | string): Promise<Case> => {
     try {
       return await api.get<Case>(`/cases/${id}`);
     } catch (error) {
@@ -68,7 +68,7 @@ const caseService = {
     }
   },
 
-  update: async (id: number, caseData: Partial<Case>): Promise<Case> => {
+  update: async (id: number | string, caseData: Partial<Case>): Promise<Case> => {
     try {
       return await api.put<Case>(`/cases/${id}`, caseData);
     } catch (error) {
@@ -77,7 +77,7 @@ const caseService = {
     }
   },
 
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: number | string): Promise<void> => {
     try {
       await api.delete(`/cases/${id}`);
     } catch (error) {
@@ -86,7 +86,7 @@ const caseService = {
     }
   },
 
-  updateStatus: async (id: number, status: string): Promise<Case> => {
+  updateStatus: async (id: number | string, status: string): Promise<Case> => {
     try {
       return await api.put<Case>(`/cases/${id}/status`, { status });
     } catch (error) {
