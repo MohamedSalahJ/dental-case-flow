@@ -39,6 +39,18 @@ public class CaseService {
                 .collect(Collectors.toList());
     }
     
+    public List<CaseDTO> getCasesByDentistId(Long dentistId, String status) {
+        List<Case> cases;
+        if (status != null && !status.isEmpty()) {
+            cases = caseRepository.findByDentistIdAndStatus(dentistId, status);
+        } else {
+            cases = caseRepository.findByDentistId(dentistId);
+        }
+        return cases.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
     public CaseDTO getCaseById(Long id) {
         return caseRepository.findById(id)
                 .map(this::convertToDTO)
