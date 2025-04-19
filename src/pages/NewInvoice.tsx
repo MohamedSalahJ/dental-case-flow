@@ -293,7 +293,7 @@ const NewInvoice = () => {
                 <Label htmlFor="status">Status</Label>
                 <Select 
                   value={invoiceData.status} 
-                  onValueChange={(value) => setInvoiceData({...invoiceData, status: value})}
+                  onValueChange={(value: 'paid' | 'unpaid' | 'overdue') => setInvoiceData({...invoiceData, status: value})}
                 >
                   <SelectTrigger id="status">
                     <SelectValue placeholder="Select status" />
