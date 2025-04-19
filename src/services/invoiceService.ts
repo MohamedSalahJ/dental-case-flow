@@ -34,8 +34,10 @@ export interface InvoiceCreateRequest {
   patientId: number;
   dentistId: number;
   caseId?: number;
+  status: 'paid' | 'unpaid' | 'overdue';
   amount: number;
   tax: number;
+  total: number;
   notes?: string;
   issueDate: string;
   dueDate: string;

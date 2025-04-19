@@ -11,9 +11,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { PlusCircle, Trash2 } from "lucide-react";
-import invoiceService from "@/services/invoiceService";
-import dentistService from "@/services/dentistService";
-import patientService from "@/services/patientService";
+import invoiceService, { InvoiceCreateRequest } from "@/services/invoiceService";
+import dentistService, { Dentist } from "@/services/dentistService";
+import patientService, { Patient } from "@/services/patientService";
 import caseService from "@/services/caseService";
 
 interface InvoiceItem {
@@ -21,6 +21,12 @@ interface InvoiceItem {
   quantity: number;
   unitPrice: number;
   amount: number;
+}
+
+interface Case {
+  id: number;
+  patientName: string;
+  title?: string;
 }
 
 const NewInvoice = () => {
@@ -72,7 +78,7 @@ const NewInvoice = () => {
 
   // Create invoice mutation
   const createInvoiceMutation = useMutation({
-    mutationFn: (data: any) => invoiceService.create(data),
+    mutationFn: (data: InvoiceCreateRequest) => invoiceService.create(data),
     onSuccess: () => {
       toast({
         title: "Success",
@@ -80,11 +86,11 @@ const NewInvoice = () => {
       });
       navigate("/invoices");
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to create invoice. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to create invoice. Please try again.",
       });
     }
   });
@@ -166,11 +172,11 @@ const NewInvoice = () => {
       return;
     }
     
-    const invoiceRequest = {
+    const invoiceRequest: InvoiceCreateRequest = {
       patientId: invoiceData.patientId,
       dentistId: invoiceData.dentistId,
-      caseId: invoiceData.caseId || null,
-      status: invoiceData.status,
+      caseId: invoiceData.caseId || undefined,
+      status: invoiceData.status as 'paid' | 'unpaid' | 'overdue',
       amount: calculateSubtotal(),
       tax: invoiceData.tax,
       total: calculateTotal(),
@@ -207,7 +213,7 @@ const NewInvoice = () => {
                     <SelectValue placeholder="Select patient" />
                   </SelectTrigger>
                   <SelectContent>
-                    {patients?.map((patient: any) => (
+                    {patients?.map((patient: Patient) => (
                       <SelectItem key={patient.id} value={patient.id.toString()}>
                         {patient.firstName} {patient.lastName}
                       </SelectItem>
@@ -226,7 +232,7 @@ const NewInvoice = () => {
                     <SelectValue placeholder="Select dentist" />
                   </SelectTrigger>
                   <SelectContent>
-                    {dentists?.map((dentist: any) => (
+                    {dentists?.map((dentist: Dentist) => (
                       <SelectItem key={dentist.id} value={dentist.id.toString()}>
                         {dentist.firstName} {dentist.lastName}
                       </SelectItem>
@@ -239,14 +245,14 @@ const NewInvoice = () => {
                 <Label htmlFor="case">Related Case</Label>
                 <Select 
                   value={invoiceData.caseId ? invoiceData.caseId.toString() : ""} 
-                  onValueChange={(value) => setInvoiceData({...invoiceData, caseId: parseInt(value)})}
+                  onValueChange={(value) => setInvoiceData({...invoiceData, caseId: value ? parseInt(value) : null})}
                 >
                   <SelectTrigger id="case">
                     <SelectValue placeholder="Select case (optional)" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">No related case</SelectItem>
-                    {cases?.map((caseItem: any) => (
+                    {cases?.map((caseItem: Case) => (
                       <SelectItem key={caseItem.id} value={caseItem.id.toString()}>
                         {caseItem.patientName} - {caseItem.title || "Case"}
                       </SelectItem>

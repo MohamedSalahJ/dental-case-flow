@@ -70,6 +70,16 @@ const patientService = {
       console.error(`Failed to delete patient ${id}:`, error);
       throw error;
     }
+  },
+  
+  // Add the missing method to get patients by dentist ID
+  getDentistPatients: async (dentistId: number): Promise<Patient[]> => {
+    try {
+      return await api.get<Patient[]>(`/patients/dentist/${dentistId}`);
+    } catch (error) {
+      console.error(`Failed to fetch patients for dentist ${dentistId}:`, error);
+      throw error;
+    }
   }
 };
 
