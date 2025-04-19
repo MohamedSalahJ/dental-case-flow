@@ -20,24 +20,44 @@ export interface TopDentist {
   dentistId: number;
   firstName: string;
   lastName: string;
-  invoiceCount: number;
-  totalAmount: number;
+  invoiceCount?: number;
+  totalAmount?: number;
+  caseCount?: number;
+  totalRevenue?: number;
 }
 
-export interface FinancialReport {
-  invoiceSummary: InvoiceSummary;
-  monthlyRevenue: MonthlyRevenue[];
-  topDentists: TopDentist[];
+export interface Report {
+  invoiceSummary?: InvoiceSummary;
+  monthlyRevenue?: MonthlyRevenue[];
+  topDentists?: TopDentist[];
 }
 
 const REPORTS_PATH = '/reports';
 
 const reportService = {
-  getFinancialReport: async (months: number = 12): Promise<FinancialReport> => {
+  getFinancialReport: async (months: number = 12): Promise<Report> => {
     try {
-      return await api.get<FinancialReport>(`${REPORTS_PATH}/financial?months=${months}`);
+      return await api.get<Report>(`${REPORTS_PATH}/financial?months=${months}`);
     } catch (error) {
       console.error("Error fetching financial report:", error);
+      throw error;
+    }
+  },
+  
+  getCaseReport: async (months: number = 12): Promise<Report> => {
+    try {
+      return await api.get<Report>(`${REPORTS_PATH}/cases?months=${months}`);
+    } catch (error) {
+      console.error("Error fetching case report:", error);
+      throw error;
+    }
+  },
+  
+  getDentistReport: async (months: number = 12): Promise<Report> => {
+    try {
+      return await api.get<Report>(`${REPORTS_PATH}/dentists?months=${months}`);
+    } catch (error) {
+      console.error("Error fetching dentist report:", error);
       throw error;
     }
   }

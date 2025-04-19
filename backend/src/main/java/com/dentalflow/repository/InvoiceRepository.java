@@ -34,4 +34,14 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
            "FROM Invoice i WHERE i.issueDate >= ?1 GROUP BY FUNCTION('YEAR', i.issueDate), FUNCTION('MONTH', i.issueDate) " +
            "ORDER BY FUNCTION('YEAR', i.issueDate), FUNCTION('MONTH', i.issueDate)")
     List<Map<String, Object>> getMonthlyRevenue(LocalDate startDate);
+    
+    @Query("SELECT i.dentist.id as dentistId, i.dentist.firstName as firstName, i.dentist.lastName as lastName, COUNT(c) as caseCount " +
+           "FROM Invoice i JOIN i.dentist d JOIN d.cases c " +
+           "GROUP BY i.dentist.id, i.dentist.firstName, i.dentist.lastName ORDER BY COUNT(c) DESC")
+    List<Map<String, Object>> getTopDentistsByCaseCount();
+    
+    @Query("SELECT i.dentist.id as dentistId, i.dentist.firstName as firstName, i.dentist.lastName as lastName, SUM(i.total) as totalRevenue " +
+           "FROM Invoice i WHERE i.issueDate >= ?1 AND i.status = 'paid' " +
+           "GROUP BY i.dentist.id, i.dentist.firstName, i.dentist.lastName ORDER BY SUM(i.total) DESC")
+    List<Map<String, Object>> getTopDentistsByRevenue(LocalDate startDate);
 }
