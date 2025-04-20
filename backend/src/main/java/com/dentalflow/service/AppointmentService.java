@@ -1,4 +1,3 @@
-
 package com.dentalflow.service;
 
 import com.dentalflow.dto.AppointmentDTO;
@@ -61,6 +60,12 @@ public class AppointmentService {
     
     public List<AppointmentDTO> getAppointmentsByDentistAndDateRange(Long dentistId, LocalDate startDate, LocalDate endDate) {
         return appointmentRepository.findByDentistIdAndAppointmentDateBetween(dentistId, startDate, endDate).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<AppointmentDTO> getAppointmentsByCaseId(Long caseId) {
+        return appointmentRepository.findByRelatedCaseId(caseId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }

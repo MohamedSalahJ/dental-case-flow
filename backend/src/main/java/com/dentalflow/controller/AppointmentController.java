@@ -1,4 +1,3 @@
-
 package com.dentalflow.controller;
 
 import com.dentalflow.dto.AppointmentDTO;
@@ -55,6 +54,11 @@ public class AppointmentController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return ResponseEntity.ok(appointmentService.getAppointmentsByDentistAndDateRange(dentistId, startDate, endDate));
+    }
+    
+    @GetMapping("/case/{caseId}")
+    public ResponseEntity<List<AppointmentDTO>> getAppointmentsByCaseId(@PathVariable Long caseId) {
+        return ResponseEntity.ok(appointmentService.getAppointmentsByCaseId(caseId));
     }
     
     @GetMapping("/{id}")

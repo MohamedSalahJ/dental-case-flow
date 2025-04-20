@@ -16,5 +16,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByDentistIdAndAppointmentDate(Long dentistId, LocalDate date);
     List<Appointment> findByDentistIdAndAppointmentDateBetween(Long dentistId, LocalDate startDate, LocalDate endDate);
     List<Appointment> findByPatientIdAndAppointmentDateBetween(Long patientId, LocalDate startDate, LocalDate endDate);
-    List<Appointment> findByCaseId(Long caseId);
+    List<Appointment> findByRelatedCaseId(Long caseId);  // Changed from findByCaseId to findByRelatedCaseId
 }
