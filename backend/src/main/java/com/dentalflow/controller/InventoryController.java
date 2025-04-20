@@ -24,6 +24,11 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryService.getAllItems());
     }
     
+    @GetMapping("/low-stock")
+    public ResponseEntity<List<InventoryItemDTO>> getLowStockItems() {
+        return ResponseEntity.ok(inventoryService.getLowStockItems());
+    }
+    
     @GetMapping("/{id}")
     public ResponseEntity<InventoryItemDTO> getItemById(@PathVariable Long id) {
         return ResponseEntity.ok(inventoryService.getItemById(id));

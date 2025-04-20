@@ -1,4 +1,3 @@
-
 package com.dentalflow.service;
 
 import com.dentalflow.dto.InventoryItemDTO;
@@ -31,6 +30,13 @@ public class InventoryService {
     
     public List<InventoryItemDTO> getAllItems() {
         List<InventoryItem> items = itemRepository.findAll();
+        return items.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<InventoryItemDTO> getLowStockItems() {
+        List<InventoryItem> items = itemRepository.findLowStockItems();
         return items.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());

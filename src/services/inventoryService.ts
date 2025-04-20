@@ -1,4 +1,3 @@
-
 import api from './api';
 
 export interface InventoryItem {
@@ -60,6 +59,15 @@ const inventoryService = {
       return await api.get<InventoryItem[]>('/inventory');
     } catch (error) {
       console.error("Error fetching inventory items:", error);
+      throw error;
+    }
+  },
+
+  getLowStockItems: async (): Promise<InventoryItem[]> => {
+    try {
+      return await api.get<InventoryItem[]>('/inventory/low-stock');
+    } catch (error) {
+      console.error("Error fetching low stock items:", error);
       throw error;
     }
   },
