@@ -9,6 +9,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "dentists")
@@ -31,6 +33,9 @@ public class Dentist {
     private String phone;
     
     private String address;
+    
+    @OneToMany(mappedBy = "dentist")
+    private List<Case> cases = new ArrayList<>();
     
     @CreationTimestamp
     private LocalDateTime createdAt;
