@@ -7,6 +7,8 @@ import com.dentalflow.dto.RegisterRequestDTO;
 import com.dentalflow.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,6 +26,12 @@ public class AuthController {
     
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequestDTO loginRequest) {
-        return ResponseEntity.ok(authService.login(loginRequest));
+        try {
+            return ResponseEntity.ok(authService.login(loginRequest));
+        } catch (BadCredentialsException e) {
+            throw new RuntimeException("Invalid credentials");
+        } catch (UsernameNotFoundException e) {
+            throw new RuntimeException("User not found");
+        }
     }
 }

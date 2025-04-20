@@ -1,3 +1,4 @@
+
 package com.dentalflow.service;
 
 import com.dentalflow.config.JwtConfig;
@@ -8,6 +9,11 @@ import com.dentalflow.dto.UserDTO;
 import com.dentalflow.model.User;
 import com.dentalflow.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +26,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtConfig jwtConfig;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
     
     public AuthResponseDTO register(RegisterRequestDTO registerRequest) {
         // Check if username or email already exists
@@ -59,27 +66,20 @@ public class AuthService {
     }
     
     public AuthResponseDTO login(AuthRequestDTO loginRequest) {
-        // Find user by email or username
-        Optional<User> userOptional;
+        // Authenticate user using DaoAuthenticationProvider
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                loginRequest.getUsername(),
+                loginRequest.getPassword()
+            )
+        );
         
-        if (loginRequest.getUsername().contains("@")) {
-            // If contains @, assume it's an email
-            userOptional = userRepository.findByEmail(loginRequest.getUsername());
-        } else {
-            // Otherwise use as username
-            userOptional = userRepository.findByUsername(loginRequest.getUsername());
-        }
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         
-        if (userOptional.isEmpty()) {
-            throw new RuntimeException("Invalid credentials");
-        }
-        
-        User user = userOptional.get();
-        
-        // Verify password
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
-        }
+        // Find the user to create the response
+        User user = userRepository.findByUsername(loginRequest.getUsername())
+                .orElseGet(() -> userRepository.findByEmail(loginRequest.getUsername())
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found")));
         
         // Generate JWT token
         String token = jwtConfig.generateToken(user.getUsername(), user.getRole());
