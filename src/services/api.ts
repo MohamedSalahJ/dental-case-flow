@@ -20,18 +20,22 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('Request error:', error);
     return Promise.reject(error);
   }
 );
 
 api.interceptors.response.use(
   (response) => {
+    console.log('API Response:', response.data);
     return response.data;
   },
   (error) => {
-    const status = error.response?.status;
+    console.error('API Error:', error);
     
     if (error.response) {
+      const status = error.response.status;
+      
       if (status === 401) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -55,6 +59,12 @@ api.interceptors.response.use(
         title: "Network Error",
         description: "Unable to connect to the server. Please check your internet connection.",
       });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred.",
+      });
     }
     
     return Promise.reject(error);
@@ -63,16 +73,16 @@ api.interceptors.response.use(
 
 const apiService = {
   get: <T>(url: string, config?: AxiosRequestConfig) => 
-    api.get<T>(url, config).then(response => response.data),
+    api.get<T>(url, config),
   
   post: <T>(url: string, data: any, config?: AxiosRequestConfig) => 
-    api.post<T>(url, data, config).then(response => response.data),
+    api.post<T>(url, data, config),
   
   put: <T>(url: string, data: any, config?: AxiosRequestConfig) => 
-    api.put<T>(url, data, config).then(response => response.data),
+    api.put<T>(url, data, config),
   
   delete: <T>(url: string, config?: AxiosRequestConfig) => 
-    api.delete<T>(url, config).then(response => response.data),
+    api.delete<T>(url, config),
 };
 
 export default apiService;

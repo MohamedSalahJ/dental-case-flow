@@ -21,7 +21,8 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      await authService.login(credentials);
+      const response = await authService.login(credentials);
+      console.log("Login successful, response:", response);
       toast({
         title: "Login Successful",
         description: "Welcome to DentalFlow!",

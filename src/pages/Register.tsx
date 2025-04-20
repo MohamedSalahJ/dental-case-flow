@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, EyeOff, UserPlus, Mail, Lock, Building } from "lucide-react";
+import { Eye, EyeOff, UserPlus, Mail, Lock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import authService from "@/services/authService";
 
@@ -18,8 +18,7 @@ const Register = () => {
     password: "",
     firstName: "",
     lastName: "",
-    role: "",
-    clinic: ""
+    role: ""
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -170,21 +169,6 @@ const Register = () => {
                     <SelectItem value="admin">Administrator</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="clinic">Dental Practice/Lab</Label>
-                <div className="relative">
-                  <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    id="clinic" 
-                    placeholder="Bright Smile Dental"
-                    className="pl-10"
-                    value={formData.clinic}
-                    onChange={(e) => setFormData({ ...formData, clinic: e.target.value })}
-                    required
-                  />
-                </div>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col">
