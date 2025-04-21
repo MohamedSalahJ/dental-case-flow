@@ -31,7 +31,8 @@ const caseService = {
   getAll: async (filter?: string): Promise<Case[]> => {
     try {
       const url = filter ? `/cases?status=${filter}` : '/cases';
-      return await api.get<Case[]>(url);
+      const response = await api.get<Case[]>(url);
+      return response.data;
     } catch (error) {
       console.error("Failed to fetch cases:", error);
       throw error;

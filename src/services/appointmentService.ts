@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { Appointment } from '../types/appointment';
 import { API_BASE_URL } from './api';
 
 export interface Appointment {

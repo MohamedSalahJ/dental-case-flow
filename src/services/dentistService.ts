@@ -27,7 +27,8 @@ export interface DentistCreateRequest {
 const dentistService = {
   getAll: async (): Promise<Dentist[]> => {
     try {
-      return await api.get<Dentist[]>('/dentists');
+      const response = await api.get<Dentist[]>('/dentists');
+      return response.data;
     } catch (error) {
       console.error("Failed to fetch dentists:", error);
       throw error;

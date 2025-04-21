@@ -101,7 +101,7 @@ const inventoryService = {
 
   deleteItem: async (id: number): Promise<void> => {
     try {
-      return await api.delete<void>(`/inventory/${id}`);
+      await api.delete(`/inventory/${id}`);
     } catch (error) {
       console.error(`Error deleting inventory item ${id}:`, error);
       throw error;
