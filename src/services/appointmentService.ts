@@ -1,5 +1,6 @@
-
-import api from './api';
+import axios from 'axios';
+import { Appointment } from '../types/appointment';
+import { API_BASE_URL } from './api';
 
 export interface Appointment {
   id: number;
@@ -29,95 +30,49 @@ export interface AppointmentCreateRequest {
   caseId?: number;
 }
 
-const appointmentService = {
-  getAll: async (): Promise<Appointment[]> => {
-    try {
-      return await api.get<Appointment[]>('/appointments');
-    } catch (error) {
-      console.error("Failed to fetch appointments:", error);
-      throw error;
-    }
+export const appointmentService = {
+  async getAppointments(): Promise<Appointment[]> {
+    const response = await axios.get<Appointment[]>(`${API_BASE_URL}/appointments`);
+    return response.data;
   },
 
-  getByDentistId: async (dentistId: number): Promise<Appointment[]> => {
-    try {
-      return await api.get<Appointment[]>(`/appointments/dentist/${dentistId}`);
-    } catch (error) {
-      console.error(`Failed to fetch appointments for dentist ${dentistId}:`, error);
-      throw error;
-    }
+  async getDentistAppointments(dentistId: string): Promise<Appointment[]> {
+    const response = await axios.get<Appointment[]>(`${API_BASE_URL}/appointments/dentist/${dentistId}`);
+    return response.data;
   },
 
-  getByPatientId: async (patientId: number): Promise<Appointment[]> => {
-    try {
-      return await api.get<Appointment[]>(`/appointments/patient/${patientId}`);
-    } catch (error) {
-      console.error(`Failed to fetch appointments for patient ${patientId}:`, error);
-      throw error;
-    }
+  async getPatientAppointments(patientId: string): Promise<Appointment[]> {
+    const response = await axios.get<Appointment[]>(`${API_BASE_URL}/appointments/patient/${patientId}`);
+    return response.data;
   },
 
-  getByDate: async (date: string): Promise<Appointment[]> => {
-    try {
-      return await api.get<Appointment[]>(`/appointments/date/${date}`);
-    } catch (error) {
-      console.error(`Failed to fetch appointments for date ${date}:`, error);
-      throw error;
-    }
+  async getUpcomingAppointments(): Promise<Appointment[]> {
+    const response = await axios.get<Appointment[]>(`${API_BASE_URL}/appointments/upcoming`);
+    return response.data;
   },
 
-  getByDentistAndDate: async (dentistId: number, date: string): Promise<Appointment[]> => {
-    try {
-      return await api.get<Appointment[]>(`/appointments/dentist/${dentistId}/date/${date}`);
-    } catch (error) {
-      console.error(`Failed to fetch appointments for dentist ${dentistId} on date ${date}:`, error);
-      throw error;
-    }
+  async getTodayAppointments(): Promise<Appointment[]> {
+    const response = await axios.get<Appointment[]>(`${API_BASE_URL}/appointments/today`);
+    return response.data;
   },
 
-  getByDentistAndDateRange: async (dentistId: number, startDate: string, endDate: string): Promise<Appointment[]> => {
-    try {
-      return await api.get<Appointment[]>(`/appointments/dentist/${dentistId}/date-range?startDate=${startDate}&endDate=${endDate}`);
-    } catch (error) {
-      console.error(`Failed to fetch appointments for dentist ${dentistId} between ${startDate} and ${endDate}:`, error);
-      throw error;
-    }
+  async getWeekAppointments(): Promise<Appointment[]> {
+    const response = await axios.get<Appointment[]>(`${API_BASE_URL}/appointments/week`);
+    return response.data;
   },
 
-  getById: async (id: number): Promise<Appointment> => {
-    try {
-      return await api.get<Appointment>(`/appointments/${id}`);
-    } catch (error) {
-      console.error(`Failed to fetch appointment with ID ${id}:`, error);
-      throw error;
-    }
+  async createAppointment(appointment: Omit<Appointment, 'id'>): Promise<Appointment> {
+    const response = await axios.post<Appointment>(`${API_BASE_URL}/appointments`, appointment);
+    return response.data;
   },
 
-  create: async (appointment: AppointmentCreateRequest): Promise<Appointment> => {
-    try {
-      return await api.post<Appointment>('/appointments', appointment);
-    } catch (error) {
-      console.error("Failed to create appointment:", error);
-      throw error;
-    }
+  async updateAppointment(id: string, appointment: Partial<Appointment>): Promise<Appointment> {
+    const response = await axios.put<Appointment>(`${API_BASE_URL}/appointments/${id}`, appointment);
+    return response.data;
   },
 
-  update: async (id: number, appointment: Partial<Appointment>): Promise<Appointment> => {
-    try {
-      return await api.put<Appointment>(`/appointments/${id}`, appointment);
-    } catch (error) {
-      console.error(`Failed to update appointment ${id}:`, error);
-      throw error;
-    }
-  },
-
-  delete: async (id: number): Promise<void> => {
-    try {
-      await api.delete(`/appointments/${id}`);
-    } catch (error) {
-      console.error(`Failed to delete appointment ${id}:`, error);
-      throw error;
-    }
+  async deleteAppointment(id: string): Promise<void> {
+    await axios.delete(`${API_BASE_URL}/appointments/${id}`);
   }
 };
 
